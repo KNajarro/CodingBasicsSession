@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "51A9OzoK+PQ=",
+  "success": true,
+  "projectFilePath": "C:\\work\\CodingBasics\\src\\CodingBasics.Application\\CodingBasics.Application.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\E104827\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.3\\microsoft.extensions.dependencyinjection.10.0.3.nupkg.sha512",
+    "C:\\Users\\E104827\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.3\\microsoft.extensions.dependencyinjection.abstractions.10.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

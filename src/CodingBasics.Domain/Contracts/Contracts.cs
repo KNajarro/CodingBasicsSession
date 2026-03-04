@@ -1,0 +1,43 @@
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace CodingBasics.Domain.Contracts;
+
+/// <summary>
+/// Service contract for Person operations.
+/// </summary>
+public interface IPersonService
+{
+    Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
+    Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
+}
+
+/// <summary>
+/// Service contract for Product operations.
+/// </summary>
+public interface IProductService
+{
+    Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default);
+    Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
+}
+
+/// <summary>
+/// Repository contract for Person data access.
+/// Implementation should use EF Core with AdventureWorksDbContext.
+/// </summary>
+public interface IPersonRepository
+{
+    Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
+    Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
+}
+
+/// <summary>
+/// Repository contract for Product data access.
+/// Implementation should use EF Core with AdventureWorksDbContext.
+/// Note: CategoryName requires joining Product -> ProductSubcategory -> ProductCategory.
+/// </summary>
+public interface IProductRepository
+{
+    Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default);
+    Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
+}
