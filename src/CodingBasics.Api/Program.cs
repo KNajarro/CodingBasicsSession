@@ -30,11 +30,16 @@ if (app.Environment.IsDevelopment())
 // PEOPLE ENDPOINTS
 // ============================================
 
+// TODO (Workshop): Implement full CRUD endpoints for People
+// - GET /api/people
+// - GET /api/people/search
+// - POST /api/people
+// - PUT /api/people/{id}
+// - DELETE /api/people/{id}
+
 app.MapGet("/api/people", async (IPersonService service, CancellationToken ct) =>
 {
-    // TODO (Workshop): Implement endpoint
-    // var result = await service.GetAllAsync(ct);
-    // return Results.Ok(result);
+    // TODO: Implement GET all people
     throw new NotImplementedException("Workshop: Implement GET /api/people");
 })
 .WithName("GetAllPeople")
@@ -47,17 +52,25 @@ app.MapGet("/api/people/search", async (
     IPersonService service,
     CancellationToken ct) =>
 {
-    // TODO (Workshop): Implement endpoint with optional filters
-    // var result = await service.SearchAsync(name, personType, ct);
-    // return Results.Ok(result);
+    // TODO: Implement search people
     throw new NotImplementedException("Workshop: Implement GET /api/people/search");
 })
 .WithName("SearchPeople")
 .WithTags("People")
 .WithOpenApi();
 
+// TODO: Implement POST /api/people (create)
+// TODO: Implement PUT /api/people/{id} (update)
+// TODO: Implement DELETE /api/people/{id} (delete)
+
 // ============================================
 // PRODUCTS ENDPOINTS
+// TODO (Workshop): Implement full CRUD endpoints for Products
+// - GET /api/products
+// - GET /api/products/search
+// - POST /api/products
+// - PUT /api/products/{id}
+// - DELETE /api/products/{id}
 // ============================================
 
 app.MapGet("/api/products", async (IProductService service, CancellationToken ct) =>

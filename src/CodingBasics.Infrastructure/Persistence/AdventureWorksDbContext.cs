@@ -5,7 +5,7 @@ namespace CodingBasics.Infrastructure.Persistence;
 
 /// <summary>
 /// EF Core DbContext for AdventureWorks database.
-/// TODO (Workshop): Complete OnModelCreating with proper table/schema mappings.
+/// TODO (Workshop): Complete OnModelCreating with proper table/schema mappings and ensure full CRUD support for entities.
 /// </summary>
 public sealed class AdventureWorksDbContext : DbContext
 {

@@ -4,7 +4,7 @@ namespace CodingBasics.Application.Services;
 
 /// <summary>
 /// Person service implementation.
-/// TODO (Workshop): Inject IPersonRepository via constructor and implement methods.
+/// TODO (Workshop): Inject IPersonRepository via constructor and implement full CRUD methods.
 /// </summary>
 public sealed class PersonService : IPersonService
 {
@@ -26,6 +26,8 @@ public sealed class PersonService : IPersonService
         // TODO: return _repository.SearchAsync(name, personType, ct);
         throw new NotImplementedException("Workshop: Implement SearchAsync");
     }
+
+    // TODO: Implement CreateAsync, UpdateAsync, DeleteAsync for Person
 }
 
 /// <summary>

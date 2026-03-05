@@ -4,9 +4,9 @@ This is the Infrastructure layer for the AdventureWorks Workshop project.
 
 ## Workshop TODOs
 
-- Implement EF Core DbContext and repositories for People and Products.
+- Implement full CRUD (Create, Read, Update, Delete) in EF Core DbContext and repositories for People and Products.
 - Register Infrastructure layer in DI (see TODO in DependencyInjection.cs).
-- See inline TODOs in Persistence/AdventureWorksDbContext.cs and Repositories/Repositories.cs for implementation tasks.
+- See inline TODOs in Persistence/AdventureWorksDbContext.cs and Repositories/Repositories.cs for CRUD implementation tasks.
 
 ## Getting Started
 
@@ -18,6 +18,15 @@ This is the Infrastructure layer for the AdventureWorks Workshop project.
 - Persistence/AdventureWorksDbContext.cs: EF Core DbContext.
 - Repositories/Repositories.cs: Repository implementations.
 - DependencyInjection.cs: Registers infrastructure services for DI.
+
+## Infrastructure Layer
+
+Implements data persistence and repository logic for CRUD operations.
+
+## Features
+
+- AdventureWorksDbContext: Entity Framework context
+- Repositories: CRUD methods for entities
 
 ---
 

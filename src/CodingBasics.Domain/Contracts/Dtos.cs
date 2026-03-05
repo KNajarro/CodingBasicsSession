@@ -3,6 +3,7 @@ namespace CodingBasics.Domain.Contracts;
 /// <summary>
 /// DTO representing a Person record for API responses.
 /// Mapped from Person.Person table.
+/// TODO (Workshop): Ensure DTO supports full CRUD operations (Create, Read, Update, Delete)
 /// </summary>
 public sealed class PersonDto
 {
@@ -25,6 +26,7 @@ public sealed class PersonDto
 /// <summary>
 /// DTO representing a Product record with category information for API responses.
 /// Requires joins: Product -> ProductSubcategory -> ProductCategory
+/// TODO (Workshop): Ensure DTO supports full CRUD operations (Create, Read, Update, Delete)
 /// </summary>
 public sealed class ProductDto
 {

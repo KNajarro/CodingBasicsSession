@@ -1,11 +1,23 @@
+# Domain Layer
+
+Defines entities, DTOs, and contracts for CRUD operations.
+
+## Structure
+
+- Entities: Data models
+- DTOs: Data transfer objects
+- Contracts: Interfaces for services and repositories
+
+Supports full CRUD workflow as described in the main README.
+
 # CodingBasics.Domain
 
 This is the Domain layer for the AdventureWorks Workshop project.
 
 ## Workshop TODOs
 
-- Define entities, DTOs, and contracts for People and Products.
-- See inline TODOs in AdventureWorks/Entities/AdventureWorksEntities.cs and Contracts/Dtos.cs for modeling tasks.
+- Define entities, DTOs, and contracts for full CRUD operations on People and Products.
+- See inline TODOs in AdventureWorks/Entities/AdventureWorksEntities.cs and Contracts/Dtos.cs for CRUD modeling tasks.
 
 ## Getting Started
 

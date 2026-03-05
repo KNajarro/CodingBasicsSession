@@ -6,7 +6,7 @@ namespace CodingBasics.Infrastructure.Repositories;
 
 /// <summary>
 /// Person repository implementation using EF Core.
-/// TODO (Workshop): Implement query methods using AdventureWorksDbContext.
+/// TODO (Workshop): Implement full CRUD methods using AdventureWorksDbContext.
 /// </summary>
 public sealed class PersonRepository : IPersonRepository
 {
@@ -40,6 +40,8 @@ public sealed class PersonRepository : IPersonRepository
 
         throw new NotImplementedException("Workshop: Implement SearchAsync");
     }
+
+    // TODO (Workshop): Implement CreateAsync, UpdateAsync, DeleteAsync for Person
 }
 
 /// <summary>
