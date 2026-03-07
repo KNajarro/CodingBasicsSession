@@ -25,28 +25,28 @@ public sealed class AdventureWorksDbContext : DbContext
 
         // TODO (Workshop): Map entities to AdventureWorks tables with correct schemas and keys.
         //
-        // modelBuilder.Entity<Person>(entity =>
-        // {
-        //     entity.ToTable("Person", "Person");
-        //     entity.HasKey(e => e.BusinessEntityID);
-        // });
+        modelBuilder.Entity<Person>(entity =>
+        {
+            entity.ToTable("Person", "Person");
+            entity.HasKey(e => e.BusinessEntityID);
+        });
         //
-        // modelBuilder.Entity<Product>(entity =>
-        // {
-        //     entity.ToTable("Product", "Production");
-        //     entity.HasKey(e => e.ProductID);
-        // });
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.ToTable("Product", "Production");
+            entity.HasKey(e => e.ProductID);
+        });
         //
-        // modelBuilder.Entity<ProductSubcategory>(entity =>
-        // {
-        //     entity.ToTable("ProductSubcategory", "Production");
-        //     entity.HasKey(e => e.ProductSubcategoryID);
-        // });
+        modelBuilder.Entity<ProductSubcategory>(entity =>
+        {
+            entity.ToTable("ProductSubcategory", "Production");
+            entity.HasKey(e => e.ProductSubcategoryID);
+        });
         //
-        // modelBuilder.Entity<ProductCategory>(entity =>
-        // {
-        //     entity.ToTable("ProductCategory", "Production");
-        //     entity.HasKey(e => e.ProductCategoryID);
-        // });
+        modelBuilder.Entity<ProductCategory>(entity =>
+        {
+            entity.ToTable("ProductCategory", "Production");
+            entity.HasKey(e => e.ProductCategoryID);
+        });
     }
 }

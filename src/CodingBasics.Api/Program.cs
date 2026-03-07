@@ -1,6 +1,7 @@
 using CodingBasics.Application;
 using CodingBasics.Infrastructure;
 using CodingBasics.Domain.Contracts;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,7 @@ builder.Services.AddSwaggerGen(c =>
 // Register application and infrastructure layers
 builder.Services.AddApplication();
 
-// TODO (Workshop): Uncomment after implementing Infrastructure layer
-// builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -37,27 +37,42 @@ if (app.Environment.IsDevelopment())
 // - PUT /api/people/{id}
 // - DELETE /api/people/{id}
 
-app.MapGet("/api/people", async (IPersonService service, CancellationToken ct) =>
+app.MapGet("/api/people", async (
+    [FromServices] IPersonService service,
+    CancellationToken ct,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20
+) =>
 {
-    // TODO: Implement GET all people
-    throw new NotImplementedException("Workshop: Implement GET /api/people");
+    if (page < 1) page = 1;
+    if (pageSize < 1) pageSize = 20;
+    var all = await service.GetAllAsync(ct);
+    var totalCount = all.Count();
+    var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+    var response = new
+    {
+        page,
+        pageSize,
+        totalCount,
+        items
+    };
+    return Results.Ok(response);
 })
 .WithName("GetAllPeople")
-.WithTags("People")
-.WithOpenApi();
+.WithTags("People");
 
-app.MapGet("/api/people/search", async (
-    string? name,
-    string? personType,
-    IPersonService service,
-    CancellationToken ct) =>
-{
-    // TODO: Implement search people
-    throw new NotImplementedException("Workshop: Implement GET /api/people/search");
-})
-.WithName("SearchPeople")
-.WithTags("People")
-.WithOpenApi();
+// app.MapGet("/api/people/search", async (
+//     string? name,
+//     string? personType,
+//     IPersonService service,
+//     CancellationToken ct) =>
+// {
+//     // TODO: Implement search people
+//     throw new NotImplementedException("Workshop: Implement GET /api/people/search");
+// })
+// .WithName("SearchPeople")
+// .WithTags("People")
+// .WithOpenApi();
 
 // TODO: Implement POST /api/people (create)
 // TODO: Implement PUT /api/people/{id} (update)
@@ -73,30 +88,29 @@ app.MapGet("/api/people/search", async (
 // - DELETE /api/products/{id}
 // ============================================
 
-app.MapGet("/api/products", async (IProductService service, CancellationToken ct) =>
-{
-    // TODO (Workshop): Implement endpoint
-    // var result = await service.GetAllAsync(ct);
-    // return Results.Ok(result);
-    throw new NotImplementedException("Workshop: Implement GET /api/products");
-})
-.WithName("GetAllProducts")
-.WithTags("Products")
-.WithOpenApi();
+// app.MapGet("/api/products", async (IProductService service, CancellationToken ct) =>
+// {
+//     // var result = await service.GetAllAsync(ct);
+//     // return Results.Ok(result);
+//     throw new NotImplementedException("Workshop: Implement GET /api/products");
+// })
+// .WithName("GetAllProducts")
+// .WithTags("Products")
+// .WithOpenApi();
 
-app.MapGet("/api/products/search", async (
-    string? name,
-    string? categoryName,
-    IProductService service,
-    CancellationToken ct) =>
-{
-    // TODO (Workshop): Implement endpoint with optional filters
-    // var result = await service.SearchAsync(name, categoryName, ct);
-    // return Results.Ok(result);
-    throw new NotImplementedException("Workshop: Implement GET /api/products/search");
-})
-.WithName("SearchProducts")
-.WithTags("Products")
-.WithOpenApi();
+// app.MapGet("/api/products/search", async (
+//     string? name,
+//     string? categoryName,
+//     IProductService service,
+//     CancellationToken ct) =>
+// {
+//     // TODO (Workshop): Implement endpoint with optional filters
+//     // var result = await service.SearchAsync(name, categoryName, ct);
+//     // return Results.Ok(result);
+//     throw new NotImplementedException("Workshop: Implement GET /api/products/search");
+// })
+// .WithName("SearchProducts")
+// .WithTags("Products")
+// .WithOpenApi();
 
 app.Run();

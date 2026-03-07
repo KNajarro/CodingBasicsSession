@@ -17,12 +17,12 @@ public static class DependencyInjection
     {
         // TODO (Workshop): Uncomment after completing DbContext configuration
         //
-        // var connectionString = configuration.GetConnectionString("DefaultConnection");
-        //
-        // services.AddDbContext<AdventureWorksDbContext>(options =>
-        //     options.UseSqlServer(connectionString));
-        //
-        // services.AddScoped<IPersonRepository, PersonRepository>();
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        services.AddDbContext<AdventureWorksDbContext>(options =>
+            options.UseSqlServer(connectionString));
+
+        services.AddScoped<IPersonRepository, PersonRepository>();
         // services.AddScoped<IProductRepository, ProductRepository>();
 
         return services;

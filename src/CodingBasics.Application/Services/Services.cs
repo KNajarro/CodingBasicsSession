@@ -8,17 +8,16 @@ namespace CodingBasics.Application.Services;
 /// </summary>
 public sealed class PersonService : IPersonService
 {
-    // TODO: private readonly IPersonRepository _repository;
+    private readonly IPersonRepository _repository;
 
-    // TODO: public PersonService(IPersonRepository repository)
-    // {
-    //     _repository = repository;
-    // }
-
-    public Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default)
+    public PersonService(IPersonRepository repository)
     {
-        // TODO: return _repository.GetAllAsync(ct);
-        throw new NotImplementedException("Workshop: Implement GetAllAsync");
+        _repository = repository;
+    }
+
+    public async Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default)
+    {
+        return await _repository.GetAllAsync(ct);
     }
 
     public Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)

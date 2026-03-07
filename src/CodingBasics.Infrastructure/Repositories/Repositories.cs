@@ -21,7 +21,16 @@ public sealed class PersonRepository : IPersonRepository
     {
         // TODO (Workshop): Query all people and map to PersonDto
         // Hint: Use _context.People.Select(...).ToListAsync(ct)
-        throw new NotImplementedException("Workshop: Implement GetAllAsync");
+
+        return await _context.People
+            .Select(p => new PersonDto
+            {
+                BusinessEntityID = p.BusinessEntityID,
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                PersonType = p.PersonType
+            })
+            .ToListAsync(ct);
     }
 
     public async Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)

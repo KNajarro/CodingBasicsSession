@@ -13,7 +13,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         // TODO: Uncomment after implementing services
-        // services.AddScoped<IPersonService, PersonService>();
+        services.AddScoped<IPersonService, PersonService>();
         // services.AddScoped<IProductService, ProductService>();
 
         return services;
