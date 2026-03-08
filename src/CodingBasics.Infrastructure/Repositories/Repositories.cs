@@ -35,22 +35,100 @@ public sealed class PersonRepository : IPersonRepository
 
     public async Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
     {
-        // TODO (Workshop): Implement search with optional filters
-        //
-        // var query = _context.People.AsQueryable();
-        //
-        // if (!string.IsNullOrWhiteSpace(name))
-        //     query = query.Where(p => p.FirstName.Contains(name) || p.LastName.Contains(name));
-        //
-        // if (!string.IsNullOrWhiteSpace(personType))
-        //     query = query.Where(p => p.PersonType == personType);
-        //
-        // return await query.Select(...).ToListAsync(ct);
+        var query = _context.People.AsQueryable();
 
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(p => p.FirstName.Contains(name) || p.LastName.Contains(name));
+        }
+
+        if (!string.IsNullOrWhiteSpace(personType))
+        {
+            query = query.Where(p => p.PersonType == personType);
+        }
+
+        return await query
+            .Select(p => new PersonDto
+            {
+                BusinessEntityID = p.BusinessEntityID,
+                PersonType = p.PersonType,
+                Title = p.Title,
+                FirstName = p.FirstName,
+                MiddleName = p.MiddleName,
+                LastName = p.LastName,
+                Suffix = p.Suffix,
+                EmailPromotion = p.EmailPromotion
+            })
+            .ToListAsync(ct);
     }
 
-    // TODO (Workshop): Implement CreateAsync, UpdateAsync, DeleteAsync for Person
+    public async Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default)
+    {
+        var entity = new Domain.AdventureWorks.Entities.Person
+        {
+            BusinessEntityID = dto.BusinessEntityID,
+            PersonType = dto.PersonType,
+            Title = dto.Title,
+            FirstName = dto.FirstName,
+            MiddleName = dto.MiddleName,
+            LastName = dto.LastName,
+            Suffix = dto.Suffix,
+            EmailPromotion = dto.EmailPromotion,
+            NameStyle = false,
+            rowguid = Guid.NewGuid(),
+            ModifiedDate = DateTime.UtcNow
+        };
+
+        _context.People.Add(entity);
+        await _context.SaveChangesAsync(ct);
+
+        dto.BusinessEntityID = entity.BusinessEntityID;
+        return dto;
+    }
+
+    public async Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default)
+    {
+        var entity = await _context.People.FirstOrDefaultAsync(p => p.BusinessEntityID == id, ct);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"Person with ID {id} was not found.");
+        }
+
+        entity.PersonType = dto.PersonType;
+        entity.Title = dto.Title;
+        entity.FirstName = dto.FirstName;
+        entity.MiddleName = dto.MiddleName;
+        entity.LastName = dto.LastName;
+        entity.Suffix = dto.Suffix;
+        entity.EmailPromotion = dto.EmailPromotion;
+        entity.ModifiedDate = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync(ct);
+
+        return new PersonDto
+        {
+            BusinessEntityID = entity.BusinessEntityID,
+            PersonType = entity.PersonType,
+            Title = entity.Title,
+            FirstName = entity.FirstName,
+            MiddleName = entity.MiddleName,
+            LastName = entity.LastName,
+            Suffix = entity.Suffix,
+            EmailPromotion = entity.EmailPromotion
+        };
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        var entity = await _context.People.FirstOrDefaultAsync(p => p.BusinessEntityID == id, ct);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"Person with ID {id} was not found.");
+        }
+
+        _context.People.Remove(entity);
+        await _context.SaveChangesAsync(ct);
+    }
 }
 
 /// <summary>
@@ -68,33 +146,111 @@ public sealed class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
     {
-        // TODO (Workshop): Query products with category information
-        // Hint: Left-outer join Product -> ProductSubcategory -> ProductCategory
-        //
-        // return await (from p in _context.Products
-        //               join sc in _context.ProductSubcategories
-        //                   on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
-        //               from sc in scGroup.DefaultIfEmpty()
-        //               join c in _context.ProductCategories
-        //                   on sc.ProductCategoryID equals c.ProductCategoryID into cGroup
-        //               from c in cGroup.DefaultIfEmpty()
-        //               select new ProductDto
-        //               {
-        //                   ProductID       = p.ProductID,
-        //                   Name            = p.Name,
-        //                   ProductNumber   = p.ProductNumber,
-        //                   Color           = p.Color,
-        //                   ListPrice       = p.ListPrice,
-        //                   CategoryName    = c != null ? c.Name : null,
-        //                   SubcategoryName = sc != null ? sc.Name : null
-        //               }).ToListAsync(ct);
-
-        throw new NotImplementedException("Workshop: Implement GetAllAsync with joins");
+        return await (from p in _context.Products
+                      join sc in _context.ProductSubcategories
+                          on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
+                      from sc in scGroup.DefaultIfEmpty()
+                      join c in _context.ProductCategories
+                          on sc.ProductCategoryID equals c.ProductCategoryID into cGroup
+                      from c in cGroup.DefaultIfEmpty()
+                      select new ProductDto
+                      {
+                          ProductID = p.ProductID,
+                          Name = p.Name,
+                          ProductNumber = p.ProductNumber,
+                          Color = p.Color,
+                          ListPrice = p.ListPrice,
+                          CategoryName = c != null ? c.Name : null,
+                          SubcategoryName = sc != null ? sc.Name : null
+                      }).ToListAsync(ct);
     }
 
     public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
     {
-        // TODO (Workshop): Implement search with optional filters on name and category
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        var query = from p in _context.Products
+                    join sc in _context.ProductSubcategories
+                        on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
+                    from sc in scGroup.DefaultIfEmpty()
+                    join c in _context.ProductCategories
+                        on sc.ProductCategoryID equals c.ProductCategoryID into cGroup
+                    from c in cGroup.DefaultIfEmpty()
+                    select new
+                    {
+                        Product = p,
+                        Subcategory = sc,
+                        Category = c
+                    };
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(x => x.Product.Name.Contains(name));
+        }
+
+        if (!string.IsNullOrWhiteSpace(categoryName))
+        {
+            query = query.Where(x => x.Category != null && x.Category.Name.Contains(categoryName));
+        }
+
+        return await query
+            .Select(x => new ProductDto
+            {
+                ProductID = x.Product.ProductID,
+                Name = x.Product.Name,
+                ProductNumber = x.Product.ProductNumber,
+                Color = x.Product.Color,
+                ListPrice = x.Product.ListPrice,
+                CategoryName = x.Category != null ? x.Category.Name : null,
+                SubcategoryName = x.Subcategory != null ? x.Subcategory.Name : null
+            })
+            .ToListAsync(ct);
+    }
+
+    public async Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default)
+    {
+        var entity = new Domain.AdventureWorks.Entities.Product
+        {
+            Name = dto.Name,
+            ProductNumber = dto.ProductNumber,
+            Color = dto.Color,
+            ListPrice = dto.ListPrice,
+            ProductSubcategoryID = null, // TODO: Map from SubcategoryName if provided
+            ModifiedDate = DateTime.UtcNow
+        };
+
+        _context.Products.Add(entity);
+        await _context.SaveChangesAsync(ct);
+
+        dto.ProductID = entity.ProductID;
+        return dto;
+    }
+
+    public async Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default)
+    {
+        var entity = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == id, ct);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"Product with ID {id} was not found.");
+        }
+
+        entity.Name = dto.Name;
+        entity.ProductNumber = dto.ProductNumber;
+        entity.Color = dto.Color;
+        entity.ListPrice = dto.ListPrice;
+        entity.ModifiedDate = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync(ct);
+        return dto;
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        var entity = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == id, ct);
+        if (entity is null)
+        {
+            throw new KeyNotFoundException($"Product with ID {id} was not found.");
+        }
+
+        _context.Products.Remove(entity);
+        await _context.SaveChangesAsync(ct);
     }
 }

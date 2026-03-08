@@ -61,22 +61,65 @@ app.MapGet("/api/people", async (
 .WithName("GetAllPeople")
 .WithTags("People");
 
-// app.MapGet("/api/people/search", async (
-//     string? name,
-//     string? personType,
-//     IPersonService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO: Implement search people
-//     throw new NotImplementedException("Workshop: Implement GET /api/people/search");
-// })
-// .WithName("SearchPeople")
-// .WithTags("People")
-// .WithOpenApi();
+app.MapGet("/api/people/search", async (
+    string? name,
+    string? personType,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, personType, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchPeople")
+.WithTags("People");
 
-// TODO: Implement POST /api/people (create)
-// TODO: Implement PUT /api/people/{id} (update)
-// TODO: Implement DELETE /api/people/{id} (delete)
+app.MapPost("/api/people", async (
+    [FromBody] PersonDto dto,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var created = await service.CreateAsync(dto, ct);
+    return Results.Created($"/api/people/{created.BusinessEntityID}", created);
+})
+.WithName("CreatePerson")
+.WithTags("People");
+
+app.MapPut("/api/people/{id:int}", async (
+    int id,
+    [FromBody] PersonDto dto,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    try
+    {
+        var updated = await service.UpdateAsync(id, dto, ct);
+        return Results.Ok(updated);
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return Results.NotFound(new { message = ex.Message });
+    }
+})
+.WithName("UpdatePerson")
+.WithTags("People");
+
+app.MapDelete("/api/people/{id:int}", async (
+    int id,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    try
+    {
+        await service.DeleteAsync(id, ct);
+        return Results.NoContent();
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return Results.NotFound(new { message = ex.Message });
+    }
+})
+.WithName("DeletePerson")
+.WithTags("People");
 
 // ============================================
 // PRODUCTS ENDPOINTS
@@ -88,29 +131,88 @@ app.MapGet("/api/people", async (
 // - DELETE /api/products/{id}
 // ============================================
 
-// app.MapGet("/api/products", async (IProductService service, CancellationToken ct) =>
-// {
-//     // var result = await service.GetAllAsync(ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products");
-// })
-// .WithName("GetAllProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+app.MapGet("/api/products", async (
+    [FromServices] IProductService service,
+    CancellationToken ct,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20
+) =>
+{
+    if (page < 1) page = 1;
+    if (pageSize < 1) pageSize = 20;
+    var all = await service.GetAllAsync(ct);
+    var totalCount = all.Count();
+    var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+    var response = new
+    {
+        page,
+        pageSize,
+        totalCount,
+        items
+    };
+    return Results.Ok(response);
+})
+.WithName("GetAllProducts")
+.WithTags("Products");
 
-// app.MapGet("/api/products/search", async (
-//     string? name,
-//     string? categoryName,
-//     IProductService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO (Workshop): Implement endpoint with optional filters
-//     // var result = await service.SearchAsync(name, categoryName, ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products/search");
-// })
-// .WithName("SearchProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+app.MapGet("/api/products/search", async (
+    string? name,
+    string? categoryName,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, categoryName, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchProducts")
+.WithTags("Products");
+
+app.MapPost("/api/products", async (
+    [FromBody] ProductDto dto,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var created = await service.CreateAsync(dto, ct);
+    return Results.Created($"/api/products/{created.ProductID}", created);
+})
+.WithName("CreateProduct")
+.WithTags("Products");
+
+app.MapPut("/api/products/{id:int}", async (
+    int id,
+    [FromBody] ProductDto dto,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    try
+    {
+        var updated = await service.UpdateAsync(id, dto, ct);
+        return Results.Ok(updated);
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return Results.NotFound(new { message = ex.Message });
+    }
+})
+.WithName("UpdateProduct")
+.WithTags("Products");
+
+app.MapDelete("/api/products/{id:int}", async (
+    int id,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    try
+    {
+        await service.DeleteAsync(id, ct);
+        return Results.NoContent();
+    }
+    catch (KeyNotFoundException ex)
+    {
+        return Results.NotFound(new { message = ex.Message });
+    }
+})
+.WithName("DeleteProduct")
+.WithTags("Products");
 
 app.Run();
