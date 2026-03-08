@@ -38,24 +38,17 @@
             <th>Subcategory</th>
           </tr>
         </thead>
-        <tbody>
-          <!-- TODO (Workshop): Replace placeholder with v-for loop
-          <tr v-for="product in products" :key="product.productID">
-            <td>{{ product.productID }}</td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.productNumber }}</td>
-            <td>{{ product.color || '-' }}</td>
-            <td>{{ formatPrice(product.listPrice) }}</td>
-            <td>{{ product.categoryName || '-' }}</td>
-            <td>{{ product.subcategoryName || '-' }}</td>
-          </tr>
-          -->
-          <tr>
-            <td colspan="7" class="placeholder">
-              Workshop: Implement v-for rows
-            </td>
-          </tr>
-        </tbody>
+         <tbody>
+           <tr v-for="product in products" :key="product.productID">
+             <td>{{ product.productID }}</td>
+             <td>{{ product.name }}</td>
+             <td>{{ product.productNumber }}</td>
+             <td>{{ product.color || '-' }}</td>
+             <td>{{ formatPrice(product.listPrice) }}</td>
+             <td>{{ product.categoryName || '-' }}</td>
+             <td>{{ product.subcategoryName || '-' }}</td>
+           </tr>
+         </tbody>
       </table>
       <p class="record-count">Total: {{ products.length }}</p>
     </div>
@@ -86,12 +79,30 @@ export default {
       }).format(p);
     },
     async handleLoadAll() {
-      // TODO: implement  -  see PeopleView for pattern
-      this.error = "Workshop: Implement handleLoadAll()";
+      this.loading = true;
+      this.error = null;
+      try {
+        this.products = await productsService.getAll();
+      } catch (err) {
+        this.error = `Error loading products: ${err.message}`;
+      } finally {
+        this.loading = false;
+      }
     },
     async handleSearch() {
-      // TODO: implement  -  see PeopleView for pattern
-      this.error = "Workshop: Implement handleSearch()";
+      this.loading = true;
+      this.error = null;
+      try {
+        // Use search method which handles different endpoint combinations intelligently
+        this.products = await productsService.search(
+          this.searchName || null,
+          this.searchCategory || null
+        );
+      } catch (err) {
+        this.error = `Error searching products: ${err.message}`;
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };

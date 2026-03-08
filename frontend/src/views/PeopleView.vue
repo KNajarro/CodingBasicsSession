@@ -41,25 +41,18 @@
             <th>Email Promo</th>
           </tr>
         </thead>
-        <tbody>
-          <!-- TODO (Workshop): Replace placeholder with v-for loop
-          <tr v-for="person in people" :key="person.businessEntityID">
-            <td>{{ person.businessEntityID }}</td>
-            <td>{{ person.personType }}</td>
-            <td>{{ person.title }}</td>
-            <td>{{ person.firstName }}</td>
-            <td>{{ person.middleName }}</td>
-            <td>{{ person.lastName }}</td>
-            <td>{{ person.suffix }}</td>
-            <td>{{ person.emailPromotion }}</td>
-          </tr>
-          -->
-          <tr>
-            <td colspan="8" class="placeholder">
-              Workshop: Implement v-for rows
-            </td>
-          </tr>
-        </tbody>
+         <tbody>
+           <tr v-for="person in people" :key="person.businessEntityID">
+             <td>{{ person.businessEntityID }}</td>
+             <td>{{ person.personType }}</td>
+             <td>{{ person.title || '-' }}</td>
+             <td>{{ person.firstName }}</td>
+             <td>{{ person.middleName || '-' }}</td>
+             <td>{{ person.lastName }}</td>
+             <td>{{ person.suffix || '-' }}</td>
+             <td>{{ person.emailPromotion }}</td>
+           </tr>
+         </tbody>
       </table>
       <p class="record-count">Total: {{ people.length }}</p>
     </div>
@@ -84,18 +77,30 @@ export default {
   },
   methods: {
     async handleLoadAll() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.getAll() }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleLoadAll()";
+      this.loading = true;
+      this.error = null;
+      try {
+        this.people = await peopleService.getAll();
+      } catch (err) {
+        this.error = `Error loading people: ${err.message}`;
+      } finally {
+        this.loading = false;
+      }
     },
     async handleSearch() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.search(this.searchName||null, this.searchType||null) }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleSearch()";
+      this.loading = true;
+      this.error = null;
+      try {
+        // Use search method which handles different endpoint combinations intelligently
+        this.people = await peopleService.search(
+          this.searchName || null,
+          this.searchType || null
+        );
+      } catch (err) {
+        this.error = `Error searching people: ${err.message}`;
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };
