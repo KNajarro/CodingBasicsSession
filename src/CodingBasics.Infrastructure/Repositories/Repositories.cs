@@ -97,12 +97,12 @@ public sealed class ProductRepository : IProductRepository
                 ProductNumber = p.ProductNumber,
                 Color = p.Color,
                 ListPrice = p.ListPrice,
+                SafetyStockLevel = p.SafetyStockLevel,
                 CategoryName = c != null ? c.Name : null,
                 SubcategoryName = sc != null ? sc.Name : null
             }
         ).ToListAsync(ct);
     }
-
     public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
     {
         var query =
@@ -120,6 +120,7 @@ public sealed class ProductRepository : IProductRepository
                 ProductNumber = p.ProductNumber,
                 Color = p.Color,
                 ListPrice = p.ListPrice,
+                SafetyStockLevel = p.SafetyStockLevel,
                 CategoryName = c != null ? c.Name : null,
                 SubcategoryName = sc != null ? sc.Name : null
             };
