@@ -1,6 +1,17 @@
 <template>
   <div class="dashboard">
+    <div class="dashboard-header">
+  <div>
     <h2>Dashboard</h2>
+    <p v-if="lastUpdated" class="last-updated">
+      Last updated: {{ lastUpdated }}
+    </p>
+  </div>
+
+  <button class="refresh-btn" @click="loadDashboard" :disabled="loading">
+    {{ loading ? "Refreshing..." : "Refresh" }}
+  </button>
+</div>
 
     <div v-if="error" class="error-message">{{ error }}</div>
     <div v-if="loading" class="loading">Loading dashboard...</div>
@@ -128,14 +139,15 @@ export default {
     Doughnut,
   },
   data() {
-    return {
-      loading: false,
-      error: null,
-      people: [],
-      products: [],
-      lowStockThreshold: 500,
-    };
-  },
+  return {
+    loading: false,
+    error: null,
+    people: [],
+    products: [],
+    lowStockThreshold: 500,
+    lastUpdated: "",
+  };
+},
   computed: {
     inventoryValue() {
       return this.products.reduce((sum, product) => {
@@ -233,26 +245,27 @@ export default {
     },
 
     async loadDashboard() {
-      this.loading = true;
-      this.error = null;
+  this.loading = true;
+  this.error = null;
 
-      try {
-        const [peopleResponse, productsResponse] = await Promise.all([
-          peopleService.getAll(1, 2000),
-          productsService.getAll(),
-        ]);
+  try {
+    const [peopleResponse, productsResponse] = await Promise.all([
+      peopleService.getAll(1, 2000),
+      productsService.getAll(),
+    ]);
 
-        this.people = peopleResponse.items || [];
-        this.products = productsResponse || [];
-      } catch (err) {
-        this.error =
-          err.response?.data?.message ||
-          err.message ||
-          "Error loading dashboard";
-      } finally {
-        this.loading = false;
-      }
-    },
+    this.people = peopleResponse.items || [];
+    this.products = productsResponse || [];
+    this.lastUpdated = new Date().toLocaleString();
+  } catch (err) {
+    this.error =
+      err.response?.data?.message ||
+      err.message ||
+      "Error loading dashboard";
+  } finally {
+    this.loading = false;
+  }
+},
   },
   mounted() {
     this.loadDashboard();
@@ -387,12 +400,51 @@ export default {
   color: #666;
 }
 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.last-updated {
+  margin-top: 0.35rem;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.refresh-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.refresh-btn:hover {
+  background: #2980b9;
+}
+
+.refresh-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
   .charts-grid {
     grid-template-columns: 1fr;
   }
 
   .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
   }
