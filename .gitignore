@@ -108,3 +108,8 @@ desktop.ini
 *.bak
 *.swp
 *~
+
+
+frontend/node_modules/
+**/bin/
+**/obj/

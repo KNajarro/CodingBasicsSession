@@ -23,8 +23,10 @@
       <button @click="handleSearch" class="btn btn-primary">Search</button>
       <button @click="handleLoadAll" class="btn btn-secondary">Load All</button>
     </div>
+
     <div v-if="error" class="error-message">{{ error }}</div>
     <div v-if="loading" class="loading">Loading...</div>
+
     <div v-else-if="products.length > 0" class="table-container">
       <table class="data-table">
         <thead>
@@ -39,7 +41,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- TODO (Workshop): Replace placeholder with v-for loop
           <tr v-for="product in products" :key="product.productID">
             <td>{{ product.productID }}</td>
             <td>{{ product.name }}</td>
@@ -49,24 +50,20 @@
             <td>{{ product.categoryName || '-' }}</td>
             <td>{{ product.subcategoryName || '-' }}</td>
           </tr>
-          -->
-          <tr>
-            <td colspan="7" class="placeholder">
-              Workshop: Implement v-for rows
-            </td>
-          </tr>
         </tbody>
       </table>
       <p class="record-count">Total: {{ products.length }}</p>
     </div>
+
     <div v-else class="empty-state">
       <p>No data. Click Load All or Search.</p>
     </div>
-    <!-- TODO (Workshop): Add UI and methods for Create, Update, and Delete product records -->
   </div>
 </template>
+
 <script>
 import productsService from "../services/productsService";
+
 export default {
   name: "ProductsView",
   data() {
@@ -85,17 +82,47 @@ export default {
         currency: "USD",
       }).format(p);
     },
+
     async handleLoadAll() {
-      // TODO: implement  -  see PeopleView for pattern
-      this.error = "Workshop: Implement handleLoadAll()";
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await productsService.getAll();
+        this.products = response || [];
+      } catch (err) {
+        this.error =
+          err.response?.data?.message ||
+          err.message ||
+          "Error loading products";
+      } finally {
+        this.loading = false;
+      }
     },
+
     async handleSearch() {
-      // TODO: implement  -  see PeopleView for pattern
-      this.error = "Workshop: Implement handleSearch()";
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await productsService.search(
+          this.searchName || null,
+          this.searchCategory || null
+        );
+        this.products = response || [];
+      } catch (err) {
+        this.error =
+          err.response?.data?.message ||
+          err.message ||
+          "Error searching products";
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };
 </script>
+
 <style scoped>
 h2 {
   margin-bottom: 1.5rem;
@@ -184,12 +211,6 @@ h2 {
 }
 .data-table tbody tr:hover {
   background: #f5f5f5;
-}
-.placeholder {
-  text-align: center;
-  color: #999;
-  font-style: italic;
-  padding: 2rem !important;
 }
 .record-count {
   padding: 1rem;

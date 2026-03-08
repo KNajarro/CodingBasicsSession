@@ -25,8 +25,10 @@
       <button @click="handleSearch" class="btn btn-primary">Search</button>
       <button @click="handleLoadAll" class="btn btn-secondary">Load All</button>
     </div>
+
     <div v-if="error" class="error-message">{{ error }}</div>
     <div v-if="loading" class="loading">Loading...</div>
+
     <div v-else-if="people.length > 0" class="table-container">
       <table class="data-table">
         <thead>
@@ -42,35 +44,30 @@
           </tr>
         </thead>
         <tbody>
-          <!-- TODO (Workshop): Replace placeholder with v-for loop
           <tr v-for="person in people" :key="person.businessEntityID">
             <td>{{ person.businessEntityID }}</td>
             <td>{{ person.personType }}</td>
-            <td>{{ person.title }}</td>
+            <td>{{ person.title || '-' }}</td>
             <td>{{ person.firstName }}</td>
-            <td>{{ person.middleName }}</td>
+            <td>{{ person.middleName || '-' }}</td>
             <td>{{ person.lastName }}</td>
-            <td>{{ person.suffix }}</td>
+            <td>{{ person.suffix || '-' }}</td>
             <td>{{ person.emailPromotion }}</td>
-          </tr>
-          -->
-          <tr>
-            <td colspan="8" class="placeholder">
-              Workshop: Implement v-for rows
-            </td>
           </tr>
         </tbody>
       </table>
       <p class="record-count">Total: {{ people.length }}</p>
     </div>
+
     <div v-else class="empty-state">
       <p>No data. Click Load All or Search.</p>
     </div>
-    <!-- TODO (Workshop): Add UI and methods for Create, Update, and Delete person records -->
   </div>
 </template>
+
 <script>
 import peopleService from "../services/peopleService";
+
 export default {
   name: "PeopleView",
   data() {
@@ -84,22 +81,45 @@ export default {
   },
   methods: {
     async handleLoadAll() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.getAll() }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleLoadAll()";
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await peopleService.getAll();
+        this.people = response.items || [];
+      } catch (err) {
+        this.error =
+          err.response?.data?.message ||
+          err.message ||
+          "Error loading people";
+      } finally {
+        this.loading = false;
+      }
     },
+
     async handleSearch() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.search(this.searchName||null, this.searchType||null) }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleSearch()";
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await peopleService.search(
+          this.searchName || null,
+          this.searchType || null
+        );
+        this.people = response || [];
+      } catch (err) {
+        this.error =
+          err.response?.data?.message ||
+          err.message ||
+          "Error searching people";
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };
 </script>
+
 <style scoped>
 h2 {
   margin-bottom: 1.5rem;
@@ -188,12 +208,6 @@ h2 {
 }
 .data-table tbody tr:hover {
   background: #f5f5f5;
-}
-.placeholder {
-  text-align: center;
-  color: #999;
-  font-style: italic;
-  padding: 2rem !important;
 }
 .record-count {
   padding: 1rem;
