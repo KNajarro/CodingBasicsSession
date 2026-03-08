@@ -14,7 +14,7 @@ public static class DependencyInjection
     {
         // TODO: Uncomment after implementing services
         services.AddScoped<IPersonService, PersonService>();
-        // services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IProductService, ProductService>();
 
         return services;
     }
