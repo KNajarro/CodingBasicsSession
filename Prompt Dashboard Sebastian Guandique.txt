@@ -1,0 +1,173 @@
+Act as a Senior Vue.js Frontend Engineer.
+
+I am working on a technical challenge and I must implement a Dashboard using AI assistance.
+
+Project stack:
+
+• Vue 3
+• Vite
+• Vue Router
+• Axios
+• Chart.js
+
+The backend API is already implemented.
+
+API Base URL:
+http://localhost:5261
+
+Swagger:
+http://localhost:5261/swagger/index.html
+
+Frontend runs at:
+http://localhost:3000
+
+Existing project structure:
+
+frontend/
+├── src
+│ ├── components
+│ │ └── DataTable.vue
+│ │
+│ ├── router
+│ │ └── index.js
+│ │
+│ ├── services
+│ │ ├── api.js
+│ │ ├── peopleService.js
+│ │ └── productsService.js
+│ │
+│ ├── views
+│ │ ├── HomeView.vue
+│ │ ├── PeopleView.vue
+│ │ └── ProductsView.vue
+│ │
+│ ├── App.vue
+│ └── main.js
+│
+├── index.html
+├── package.json
+└── vite.config.js
+
+The services already use Axios to fetch:
+
+Products data
+People data
+
+Product fields include:
+
+ProductID
+Name
+Color
+ListPrice
+SafetyStockLevel
+
+People fields include:
+
+PersonID
+PersonType
+
+Your task is to build a Dashboard page that consumes this API and displays analytics.
+
+DASHBOARD REQUIREMENTS
+
+Inventory Value KPI
+Display a KPI card showing the total inventory value calculated as:
+
+SUM(ListPrice) across all products.
+
+The KPI should be displayed as a large card with:
+
+Title
+Total value formatted as currency.
+
+Distribution by Color
+Create a Pie or Doughnut chart using Chart.js that shows how many products exist for each Color.
+
+Example:
+
+Red = 12
+Black = 30
+Silver = 8
+
+Customer Analysis
+Create a Bar chart using Chart.js showing the number of people grouped by PersonType.
+
+Example:
+
+EM = 120
+IN = 75
+SP = 30
+
+Stock Management
+Display a table listing products.
+
+Rows should be highlighted if:
+
+SafetyStockLevel < 10
+
+Use conditional styling.
+
+IMPLEMENTATION RULES
+
+• Use Vue 3 Composition API
+• Use modular components
+• Fetch data using existing services
+• Charts must update automatically after API load
+• Use responsive layout
+• Keep styling simple but clean
+
+CREATE THESE COMPONENTS
+
+src/components/InventoryKPI.vue
+src/components/ColorDistributionChart.vue
+src/components/CustomerAnalysisChart.vue
+src/components/LowStockTable.vue
+
+CREATE THIS VIEW
+
+src/views/DashboardView.vue
+
+The dashboard layout should be:
+
+Top section:
+Inventory KPI card
+
+Second section:
+Color distribution chart
+
+Third section:
+Customer analysis chart
+
+Fourth section:
+Low stock products table
+
+ROUTER UPDATE
+
+Add a new route:
+
+/dashboard
+
+Example:
+
+{
+path: '/dashboard',
+name: 'dashboard',
+component: DashboardView
+}
+
+DEPENDENCIES
+
+Provide the npm commands required to install Chart.js and Vue Chart.js integration.
+
+CODE REQUIREMENTS
+
+For every file provide:
+
+• full template
+• full script
+• full style
+
+All code must be ready to paste into the project and run without modification.
+
+Avoid placeholders.
+Use realistic mock API calls if necessary.
