@@ -8,7 +8,7 @@ export default defineConfig({
     proxy: {
       // All requests starting with /api are forwarded to the .NET API
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5261',
         changeOrigin: true
       }
     }
