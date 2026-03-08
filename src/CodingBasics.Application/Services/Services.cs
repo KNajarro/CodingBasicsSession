@@ -22,11 +22,25 @@ public sealed class PersonService : IPersonService
 
     public Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, personType, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        return _repository.SearchAsync(name, personType, ct);
     }
 
     // TODO: Implement CreateAsync, UpdateAsync, DeleteAsync for Person
+
+    public Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default)
+    {
+        return _repository.CreateAsync(dto, ct);
+    }
+
+    public Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default)
+    {
+        return _repository.UpdateAsync(id, dto, ct);
+    }
+
+    public Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        return _repository.DeleteAsync(id, ct);
+    }
 }
 
 /// <summary>
@@ -35,22 +49,35 @@ public sealed class PersonService : IPersonService
 /// </summary>
 public sealed class ProductService : IProductService
 {
-    // TODO: private readonly IProductRepository _repository;
+    private readonly IProductRepository _repository;
 
-    // TODO: public ProductService(IProductRepository repository)
-    // {
-    //     _repository = repository;
-    // }
+    public ProductService(IProductRepository repository)
+    {
+        _repository = repository;
+    }
 
     public Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
     {
-        // TODO: return _repository.GetAllAsync(ct);
-        throw new NotImplementedException("Workshop: Implement GetAllAsync");
+        return _repository.GetAllAsync(ct);
     }
 
     public Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, categoryName, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+            return _repository.SearchAsync(name, categoryName, ct);
+    }
+
+    public Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default)
+    {
+        return _repository.CreateAsync(dto, ct);
+    }
+
+    public Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default)
+    {
+        return _repository.UpdateAsync(id, dto, ct);
+    }
+    
+    public Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        return _repository.DeleteAsync(id, ct);
     }
 }

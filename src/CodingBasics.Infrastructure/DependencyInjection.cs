@@ -4,13 +4,15 @@ using Microsoft.Extensions.DependencyInjection;
 using CodingBasics.Domain.Contracts;
 using CodingBasics.Infrastructure.Persistence;
 using CodingBasics.Infrastructure.Repositories;
+using CodingBasics.Application.Services;
 
 namespace CodingBasics.Infrastructure;
 
 public static class DependencyInjection
 {
     /// <summary>
-    /// Registers Infrastructure layer services (DbContext, Repositories).
+    /// Registers Infrastructure layer services (DbContext, Repositories);
+    /// </summary>
     /// TODO (Workshop): Uncomment registrations after implementing repositories.
     /// </summary>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -23,7 +25,7 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IPersonRepository, PersonRepository>();
-        // services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
 
         return services;
     }
