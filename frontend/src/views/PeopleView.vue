@@ -42,7 +42,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- TODO (Workshop): Replace placeholder with v-for loop
           <tr v-for="person in people" :key="person.businessEntityID">
             <td>{{ person.businessEntityID }}</td>
             <td>{{ person.personType }}</td>
@@ -52,12 +51,6 @@
             <td>{{ person.lastName }}</td>
             <td>{{ person.suffix }}</td>
             <td>{{ person.emailPromotion }}</td>
-          </tr>
-          -->
-          <tr>
-            <td colspan="8" class="placeholder">
-              Workshop: Implement v-for rows
-            </td>
           </tr>
         </tbody>
       </table>
@@ -83,19 +76,33 @@ export default {
     };
   },
   methods: {
-    async handleLoadAll() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.getAll() }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleLoadAll()";
+      async handleLoadAll() {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        this.people = await peopleService.getAll();
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
     },
+
     async handleSearch() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.search(this.searchName||null, this.searchType||null) }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleSearch()";
+      this.loading = true;
+      this.error = null;
+
+      try {
+        this.people = await peopleService.search(
+          this.searchName || null,
+          this.searchType || null
+        );
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };

@@ -6,21 +6,29 @@ import api from './api'
  */
 export const peopleService = {
   /** GET /api/people - returns all PersonDto records */
-  async getAll() {
-    // TODO: const response = await api.get('/people')
-    //       return response.data
-    throw new Error('Workshop: Implement getAll()')
+  async getAll(page = 1, pageSize = 20) {
+    const response = await api.get("/people", {
+      params: { page, pageSize },
+    });
+    return response.data.items;
   },
 
-  /** GET /api/people/search?name=&personType= */
-  async search(name, personType) {
-    // TODO: const params = {}
-    //       if (name)       params.name       = name
-    //       if (personType) params.personType = personType
-    //       const response = await api.get('/people/search', { params })
-    //       return response.data
-    throw new Error('Workshop: Implement search()')
-  },
+  async search(name, personType, page = 1, pageSize = 20) {
+
+  const params = { page, pageSize }
+
+  if (name && name.trim()) {
+    params.name = name.trim()
+  }
+
+  if (personType && personType.trim()) {
+    params.personType = personType.trim()
+  }
+
+  const response = await api.get("/people/search", { params })
+
+  return response.data.items || response.data;
+},
 
   /** POST /api/people - create a new person */
   async create(person) {
