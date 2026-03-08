@@ -1,0 +1,43 @@
+# Dashboard Implementation Requirements
+
+Build a **Dashboard view** for the existing frontend application, using the current **ASP.NET C# API** as the data source.
+
+## Objective
+Create a dashboard that consumes the available API endpoints and presents key business insights through KPI cards, charts, and a stock table.
+
+## Functional Requirements
+
+### 1. Inventory Value KPI
+Display a KPI card that shows the **total inventory value**, calculated as the sum of **`ListPrice`** across all products.
+
+### 2. Product Distribution by Color
+Display a **pie chart or doughnut chart** showing the **number of products grouped by color**.
+
+- You may use **Chart.js** or **ApexCharts**
+- Products with no color can be grouped under a label such as **"No Color"**
+
+### 3. Customer Analysis by Person Type
+Display a **bar chart** showing the **number of people grouped by `PersonType`**.
+
+### 4. Stock Management Table
+Display a table for **stock management**, highlighting or filtering **low stock products**.
+
+Suggested logic:
+- Compare **`SafetyStockLevel`** and **`ReorderPoint`**
+- Highlight rows where stock is considered low
+- Optionally allow filtering to show only low stock items
+
+## Data Source
+Use the current API endpoints already available in the project.
+
+## UI / Styling Requirements
+- Keep the same visual style already used in the project
+- Make the dashboard look clean and professional
+- Use **attractive colors** for the charts
+- Maintain consistency with the existing frontend structure and component style
+
+## Expected Dashboard Sections
+- Inventory Value KPI card
+- Product Color Distribution chart
+- Customer Analysis chart
+- Low Stock Products table
