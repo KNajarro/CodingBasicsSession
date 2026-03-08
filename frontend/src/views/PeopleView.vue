@@ -1,6 +1,8 @@
 <template>
   <div class="people-view">
-    <h2>People</h2>
+    <h2>People Management</h2>
+    
+    <!-- Search and Actions Bar -->
     <div class="search-form">
       <div class="form-group">
         <label>Name:</label>
@@ -8,6 +10,7 @@
           type="text"
           v-model="searchName"
           placeholder="Search by name..."
+          @keyup.enter="handleSearch"
         />
       </div>
       <div class="form-group">
@@ -24,9 +27,15 @@
       </div>
       <button @click="handleSearch" class="btn btn-primary">Search</button>
       <button @click="handleLoadAll" class="btn btn-secondary">Load All</button>
+      <button @click="openCreateModal" class="btn btn-success">+ New Person</button>
     </div>
+
+    <!-- Messages -->
     <div v-if="error" class="error-message">{{ error }}</div>
+    <div v-if="success" class="success-message">{{ success }}</div>
     <div v-if="loading" class="loading">Loading...</div>
+
+    <!-- Data Table -->
     <div v-else-if="people.length > 0" class="table-container">
       <table class="data-table">
         <thead>
@@ -39,38 +48,108 @@
             <th>Last Name</th>
             <th>Suffix</th>
             <th>Email Promo</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <!-- TODO (Workshop): Replace placeholder with v-for loop
           <tr v-for="person in people" :key="person.businessEntityID">
             <td>{{ person.businessEntityID }}</td>
             <td>{{ person.personType }}</td>
-            <td>{{ person.title }}</td>
+            <td>{{ person.title || '-' }}</td>
             <td>{{ person.firstName }}</td>
-            <td>{{ person.middleName }}</td>
+            <td>{{ person.middleName || '-' }}</td>
             <td>{{ person.lastName }}</td>
-            <td>{{ person.suffix }}</td>
+            <td>{{ person.suffix || '-' }}</td>
             <td>{{ person.emailPromotion }}</td>
-          </tr>
-          -->
-          <tr>
-            <td colspan="8" class="placeholder">
-              Workshop: Implement v-for rows
+            <td class="actions">
+              <button @click="openEditModal(person)" class="btn-action btn-edit" title="Edit">✏️</button>
+              <button @click="confirmDelete(person)" class="btn-action btn-delete" title="Delete">🗑️</button>
             </td>
           </tr>
         </tbody>
       </table>
-      <p class="record-count">Total: {{ people.length }}</p>
+      <p class="record-count">Total: {{ people.length }} records</p>
     </div>
+
+    <!-- Empty State -->
     <div v-else class="empty-state">
       <p>No data. Click Load All or Search.</p>
     </div>
-    <!-- TODO (Workshop): Add UI and methods for Create, Update, and Delete person records -->
+
+    <!-- Create/Edit Modal -->
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+      <div class="modal">
+        <h3>{{ isEditing ? 'Edit Person' : 'Create New Person' }}</h3>
+        <form @submit.prevent="handleSave">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Person Type: <span class="required">*</span></label>
+              <select v-model="formData.personType" required>
+                <option value="SC">SC - Store Contact</option>
+                <option value="IN">IN - Individual</option>
+                <option value="SP">SP - Sales Person</option>
+                <option value="EM">EM - Employee</option>
+                <option value="VC">VC - Vendor Contact</option>
+                <option value="GC">GC - General Contact</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Title:</label>
+              <input type="text" v-model="formData.title" placeholder="Mr., Mrs., etc." />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name: <span class="required">*</span></label>
+              <input type="text" v-model="formData.firstName" required />
+            </div>
+            <div class="form-group">
+              <label>Middle Name:</label>
+              <input type="text" v-model="formData.middleName" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Last Name: <span class="required">*</span></label>
+              <input type="text" v-model="formData.lastName" required />
+            </div>
+            <div class="form-group">
+              <label>Suffix:</label>
+              <input type="text" v-model="formData.suffix" placeholder="Jr., Sr., etc." />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email Promotion:</label>
+            <input type="number" v-model.number="formData.emailPromotion" min="0" max="2" />
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">{{ isEditing ? 'Update' : 'Create' }}</button>
+            <button type="button" @click="closeModal" class="btn btn-secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+      <div class="modal modal-small">
+        <h3>Confirm Delete</h3>
+        <p>Are you sure you want to delete <strong>{{ personToDelete?.firstName }} {{ personToDelete?.lastName }}</strong>?</p>
+        <div class="modal-actions">
+          <button @click="handleDelete" class="btn btn-danger">Delete</button>
+          <button @click="showDeleteModal = false" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 import peopleService from "../services/peopleService";
+
 export default {
   name: "PeopleView",
   data() {
@@ -80,24 +159,135 @@ export default {
       searchType: "",
       loading: false,
       error: null,
+      success: null,
+      showModal: false,
+      showDeleteModal: false,
+      isEditing: false,
+      personToDelete: null,
+      formData: {
+        businessEntityID: 0,
+        personType: "IN",
+        title: "",
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        suffix: "",
+        emailPromotion: 0
+      }
     };
   },
   methods: {
     async handleLoadAll() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.getAll() }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleLoadAll()";
+      this.loading = true;
+      this.error = null;
+      this.success = null;
+      try {
+        this.people = await peopleService.getAll();
+      } catch (err) {
+        this.error = err.response?.data?.message || err.message;
+      } finally {
+        this.loading = false;
+      }
     },
+
     async handleSearch() {
-      // TODO: this.loading = true; this.error = null
-      //       try { this.people = await peopleService.search(this.searchName||null, this.searchType||null) }
-      //       catch (err) { this.error = err.message }
-      //       finally { this.loading = false }
-      this.error = "Workshop: Implement handleSearch()";
+      this.loading = true;
+      this.error = null;
+      this.success = null;
+      try {
+        this.people = await peopleService.search(
+          this.searchName || null,
+          this.searchType || null
+        );
+      } catch (err) {
+        this.error = err.response?.data?.message || err.message;
+      } finally {
+        this.loading = false;
+      }
     },
+
+    openCreateModal() {
+      this.isEditing = false;
+      this.formData = {
+        businessEntityID: 0,
+        personType: "IN",
+        title: "",
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        suffix: "",
+        emailPromotion: 0
+      };
+      this.showModal = true;
+      this.error = null;
+      this.success = null;
+    },
+
+    openEditModal(person) {
+      this.isEditing = true;
+      this.formData = { ...person };
+      this.showModal = true;
+      this.error = null;
+      this.success = null;
+    },
+
+    closeModal() {
+      this.showModal = false;
+      this.formData = {
+        businessEntityID: 0,
+        personType: "IN",
+        title: "",
+        firstName: "",
+        middleName: "",
+        lastName: "",
+        suffix: "",
+        emailPromotion: 0
+      };
+    },
+
+    async handleSave() {
+      this.error = null;
+      this.success = null;
+      try {
+        if (this.isEditing) {
+          await peopleService.update(this.formData.businessEntityID, this.formData);
+          this.success = "Person updated successfully!";
+        } else {
+          await peopleService.create(this.formData);
+          this.success = "Person created successfully!";
+        }
+        this.closeModal();
+        await this.handleLoadAll();
+      } catch (err) {
+        this.error = err.response?.data?.message || err.message;
+      }
+    },
+
+    confirmDelete(person) {
+      this.personToDelete = person;
+      this.showDeleteModal = true;
+      this.error = null;
+      this.success = null;
+    },
+
+    async handleDelete() {
+      this.error = null;
+      this.success = null;
+      try {
+        await peopleService.delete(this.personToDelete.businessEntityID);
+        this.success = "Person deleted successfully!";
+        this.showDeleteModal = false;
+        this.personToDelete = null;
+        await this.handleLoadAll();
+      } catch (err) {
+        this.error = err.response?.data?.message || err.message;
+        this.showDeleteModal = false;
+      }
+    }
   },
+  mounted() {
+    this.handleLoadAll();
+  }
 };
 </script>
 <style scoped>
@@ -139,6 +329,7 @@ h2 {
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
+  transition: background 0.3s;
 }
 .btn-primary {
   background: #3498db;
@@ -154,9 +345,30 @@ h2 {
 .btn-secondary:hover {
   background: #7f8c8d;
 }
+.btn-success {
+  background: #27ae60;
+  color: white;
+}
+.btn-success:hover {
+  background: #229954;
+}
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+.btn-danger:hover {
+  background: #c0392b;
+}
 .error-message {
   background: #fee;
   color: #c00;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+.success-message {
+  background: #d4edda;
+  color: #155724;
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1rem;
@@ -189,11 +401,20 @@ h2 {
 .data-table tbody tr:hover {
   background: #f5f5f5;
 }
-.placeholder {
-  text-align: center;
-  color: #999;
-  font-style: italic;
-  padding: 2rem !important;
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.btn-action {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.25rem;
+  transition: transform 0.2s;
+}
+.btn-action:hover {
+  transform: scale(1.2);
 }
 .record-count {
   padding: 1rem;
@@ -207,5 +428,59 @@ h2 {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+.modal-small {
+  max-width: 400px;
+}
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.modal .form-group {
+  margin-bottom: 1rem;
+}
+.modal .form-group input,
+.modal .form-group select {
+  width: 100%;
+}
+.required {
+  color: #e74c3c;
+}
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
 }
 </style>

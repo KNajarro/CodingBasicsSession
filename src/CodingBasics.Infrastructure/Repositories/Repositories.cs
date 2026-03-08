@@ -1,100 +1,187 @@
 using Microsoft.EntityFrameworkCore;
 using CodingBasics.Domain.Contracts;
+using CodingBasics.Domain.AdventureWorks.Entities;
 using CodingBasics.Infrastructure.Persistence;
 
 namespace CodingBasics.Infrastructure.Repositories;
 
 /// <summary>
 /// Person repository implementation using EF Core.
-/// TODO (Workshop): Implement full CRUD methods using AdventureWorksDbContext.
 /// </summary>
 public sealed class PersonRepository : IPersonRepository
 {
-    private readonly AdventureWorksDbContext _context;
+  private readonly AdventureWorksDbContext _context;
 
-    public PersonRepository(AdventureWorksDbContext context)
+  public PersonRepository(AdventureWorksDbContext context)
+  {
+    _context = context;
+  }
+
+  public async Task<IEnumerable<Person>> GetAllAsync(CancellationToken ct = default)
+  {
+    return await _context.People.ToListAsync(ct);
+  }
+
+  public async Task<IEnumerable<Person>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
+  {
+    var query = _context.People.AsQueryable();
+
+    if (!string.IsNullOrWhiteSpace(name))
+      query = query.Where(p => p.FirstName.Contains(name) || p.LastName.Contains(name));
+
+    if (!string.IsNullOrWhiteSpace(personType))
+      query = query.Where(p => p.PersonType == personType);
+
+    return await query.ToListAsync(ct);
+  }
+
+  public async Task<Person> CreateAsync(Person entity, CancellationToken ct = default)
+  {
+    // Get next BusinessEntityID (AdventureWorks doesn't auto-generate this)
+    var maxId = await _context.People
+        .MaxAsync(p => (int?)p.BusinessEntityID, ct) ?? 0;
+    entity.BusinessEntityID = maxId + 1;
+
+    // Use transaction to ensure consistency
+    await using var transaction = await _context.Database.BeginTransactionAsync(ct);
+    try
     {
-        _context = context;
-    }
+      // BusinessEntityID is not IDENTITY, so we can insert directly
+      _context.People.Add(entity);
+      await _context.SaveChangesAsync(ct);
 
-    public async Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default)
+      await transaction.CommitAsync(ct);
+      return entity;
+    }
+    catch
     {
-        // TODO (Workshop): Query all people and map to PersonDto
-        // Hint: Use _context.People.Select(...).ToListAsync(ct)
-
-        return await _context.People
-            .Select(p => new PersonDto
-            {
-                BusinessEntityID = p.BusinessEntityID,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                PersonType = p.PersonType
-            })
-            .ToListAsync(ct);
+      await transaction.RollbackAsync(ct);
+      throw;
     }
+  }
 
-    public async Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
-    {
-        // TODO (Workshop): Implement search with optional filters
-        //
-        // var query = _context.People.AsQueryable();
-        //
-        // if (!string.IsNullOrWhiteSpace(name))
-        //     query = query.Where(p => p.FirstName.Contains(name) || p.LastName.Contains(name));
-        //
-        // if (!string.IsNullOrWhiteSpace(personType))
-        //     query = query.Where(p => p.PersonType == personType);
-        //
-        // return await query.Select(...).ToListAsync(ct);
+  public async Task<Person> UpdateAsync(int id, Person entity, CancellationToken ct = default)
+  {
+    var existing = await _context.People.FindAsync(new object[] { id }, ct);
+    if (existing == null)
+      throw new KeyNotFoundException($"Person with ID {id} not found");
 
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
-    }
+    existing.PersonType = entity.PersonType;
+    existing.Title = entity.Title;
+    existing.FirstName = entity.FirstName;
+    existing.MiddleName = entity.MiddleName;
+    existing.LastName = entity.LastName;
+    existing.Suffix = entity.Suffix;
+    existing.EmailPromotion = entity.EmailPromotion;
+    existing.ModifiedDate = DateTime.UtcNow;
 
-    // TODO (Workshop): Implement CreateAsync, UpdateAsync, DeleteAsync for Person
+    await _context.SaveChangesAsync(ct);
+    return existing;
+  }
+
+  public async Task DeleteAsync(int id, CancellationToken ct = default)
+  {
+    var entity = await _context.People.FindAsync(new object[] { id }, ct);
+    if (entity == null)
+      throw new KeyNotFoundException($"Person with ID {id} not found");
+
+    _context.People.Remove(entity);
+    await _context.SaveChangesAsync(ct);
+  }
 }
 
 /// <summary>
 /// Product repository implementation using EF Core.
-/// TODO (Workshop): Implement query methods with category joins.
 /// </summary>
 public sealed class ProductRepository : IProductRepository
 {
-    private readonly AdventureWorksDbContext _context;
+  private readonly AdventureWorksDbContext _context;
 
-    public ProductRepository(AdventureWorksDbContext context)
+  public ProductRepository(AdventureWorksDbContext context)
+  {
+    _context = context;
+  }
+
+  public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken ct = default)
+  {
+    return await _context.Products.ToListAsync(ct);
+  }
+
+  public async Task<IEnumerable<Product>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+  {
+    var query = _context.Products.AsQueryable();
+
+    if (!string.IsNullOrWhiteSpace(name))
+      query = query.Where(p => p.Name.Contains(name));
+
+    if (!string.IsNullOrWhiteSpace(categoryName))
     {
-        _context = context;
+      // Join with ProductSubcategory and ProductCategory to filter by category name
+      query = from p in query
+              join sc in _context.ProductSubcategories on p.ProductSubcategoryID equals sc.ProductSubcategoryID
+              join c in _context.ProductCategories on sc.ProductCategoryID equals c.ProductCategoryID
+              where c.Name.Contains(categoryName)
+              select p;
     }
 
-    public async Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
-    {
-        // TODO (Workshop): Query products with category information
-        // Hint: Left-outer join Product -> ProductSubcategory -> ProductCategory
-        //
-        // return await (from p in _context.Products
-        //               join sc in _context.ProductSubcategories
-        //                   on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
-        //               from sc in scGroup.DefaultIfEmpty()
-        //               join c in _context.ProductCategories
-        //                   on sc.ProductCategoryID equals c.ProductCategoryID into cGroup
-        //               from c in cGroup.DefaultIfEmpty()
-        //               select new ProductDto
-        //               {
-        //                   ProductID       = p.ProductID,
-        //                   Name            = p.Name,
-        //                   ProductNumber   = p.ProductNumber,
-        //                   Color           = p.Color,
-        //                   ListPrice       = p.ListPrice,
-        //                   CategoryName    = c != null ? c.Name : null,
-        //                   SubcategoryName = sc != null ? sc.Name : null
-        //               }).ToListAsync(ct);
+    return await query.ToListAsync(ct);
+  }
 
-        throw new NotImplementedException("Workshop: Implement GetAllAsync with joins");
-    }
+  public async Task<Product> CreateAsync(Product entity, CancellationToken ct = default)
+  {
+    // Get next ProductID
+    var maxId = await _context.Products.MaxAsync(p => (int?)p.ProductID, ct) ?? 0;
+    entity.ProductID = maxId + 1;
 
-    public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+    // Use IDENTITY_INSERT to insert explicit ID value (required due to triggers preventing OUTPUT clause)
+    await using var transaction = await _context.Database.BeginTransactionAsync(ct);
+    try
     {
-        // TODO (Workshop): Implement search with optional filters on name and category
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+      await _context.Database.ExecuteSqlRawAsync(
+        "SET IDENTITY_INSERT [Production].[Product] ON", ct);
+
+      _context.Products.Add(entity);
+      await _context.SaveChangesAsync(ct);
+
+      await _context.Database.ExecuteSqlRawAsync(
+        "SET IDENTITY_INSERT [Production].[Product] OFF", ct);
+
+      await transaction.CommitAsync(ct);
+      return entity;
     }
+    catch
+    {
+      await transaction.RollbackAsync(ct);
+      throw;
+    }
+  }
+
+  public async Task<Product> UpdateAsync(int id, Product entity, CancellationToken ct = default)
+  {
+    var existing = await _context.Products.FindAsync(new object[] { id }, ct);
+    if (existing == null)
+      throw new KeyNotFoundException($"Product with ID {id} not found");
+
+    existing.Name = entity.Name;
+    existing.ProductNumber = entity.ProductNumber;
+    existing.Color = entity.Color;
+    existing.ListPrice = entity.ListPrice;
+    existing.StandardCost = entity.StandardCost;
+    existing.SafetyStockLevel = entity.SafetyStockLevel;
+    existing.ReorderPoint = entity.ReorderPoint;
+    existing.ModifiedDate = DateTime.UtcNow;
+
+    await _context.SaveChangesAsync(ct);
+    return existing;
+  }
+
+  public async Task DeleteAsync(int id, CancellationToken ct = default)
+  {
+    var entity = await _context.Products.FindAsync(new object[] { id }, ct);
+    if (entity == null)
+      throw new KeyNotFoundException($"Product with ID {id} not found");
+
+    _context.Products.Remove(entity);
+    await _context.SaveChangesAsync(ct);
+  }
 }
