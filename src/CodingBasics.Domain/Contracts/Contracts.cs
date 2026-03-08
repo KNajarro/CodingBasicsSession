@@ -41,13 +41,12 @@ public interface IProductService
 /// </summary>
 public interface IPersonRepository
 { 
-    Task<IEnumerable<Person>> GetAllAsync(CancellationToken ct = default);
-    Task<IEnumerable<Person>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
+    Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
+    Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
+     Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
 
-    Task<Person> CreateAsync(Person person, CancellationToken ct = default);
-    Task<Person> UpdateAsync(int id, Person person, CancellationToken ct = default);
+    Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
     Task DeleteAsync(int id, CancellationToken ct = default);
-
     
 }
 
@@ -60,9 +59,9 @@ public interface IPersonRepository
 /// </summary>
 public interface IProductRepository
 {
-    Task<IEnumerable<Product>> GetAllAsync(CancellationToken ct = default);
-    Task<IEnumerable<Product>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
-     Task<Product> CreateAsync(Product product, CancellationToken ct = default);
-    Task<Product> UpdateAsync(int id, Product product, CancellationToken ct = default);
-    Task DeleteAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default);
+Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
+Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
+Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default);
+Task DeleteAsync(int id, CancellationToken ct = default);
 }
