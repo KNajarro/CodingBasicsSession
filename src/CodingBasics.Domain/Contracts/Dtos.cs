@@ -30,10 +30,34 @@ public sealed class PersonDto
 /// </summary>
 public sealed class ProductDto
 {
+    /// <summary>
+    /// Unique product identifier.
+    /// </summary>
     public int ProductID { get; set; }
+
+    /// <summary>
+    /// Product name.
+    /// Examples: "Road-150 Red, 62", "Mountain-100 Silver"
+    /// </summary>
     public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Product number used for ordering.
+    /// Examples: "BK-R93R-62", "BK-M82B-48"
+    /// </summary>
     public string ProductNumber { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Product color.
+    /// Examples: "Red", "Silver", "Yellow"
+    /// Can be null for products without a color specification.
+    /// </summary>
     public string? Color { get; set; }
+
+    /// <summary>
+    /// Catalog list price.
+    /// Example: 3578.27
+    /// </summary>
     public decimal ListPrice { get; set; }
 
     /// <summary>
