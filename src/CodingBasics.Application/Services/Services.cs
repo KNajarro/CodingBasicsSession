@@ -1,7 +1,6 @@
-using System.Formats.Asn1;
 using CodingBasics.Domain.Contracts;
 using CodingBasics.Domain.AdventureWorks.Entities;
-using System.Reflection.Metadata.Ecma335;
+
 
 namespace CodingBasics.Application.Services;
 
@@ -141,24 +140,200 @@ public sealed class PersonService : IPersonService
 /// Product service implementation.
 /// TODO (Workshop): Inject IProductRepository via constructor and implement methods.
 /// </summary>
+
 public sealed class ProductService : IProductService
 {
-    // TODO: private readonly IProductRepository _repository;
+    private readonly IProductRepository _repository;
 
-    // TODO: public ProductService(IProductRepository repository)
-    // {
-    //     _repository = repository;
-    // }
-
-    public Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
+    public ProductService(IProductRepository repository)
     {
-        // TODO: return _repository.GetAllAsync(ct);
-        throw new NotImplementedException("Workshop: Implement GetAllAsync");
+        _repository = repository;
     }
 
-    public Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, categoryName, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        var products = await _repository.GetAllAsync(ct);
+
+        return products.Select(p => new ProductDto
+        {
+            ProductID = p.ProductID,
+            Name = p.Name,
+            ProductNumber = p.ProductNumber,
+            Color = p.Color,
+            ListPrice = p.ListPrice,
+            MakeFlag = p.MakeFlag,
+            FinishedGoodsFlag = p.FinishedGoodsFlag,
+            SafetyStockLevel = p.SafetyStockLevel,
+            ReorderPoint = p.ReorderPoint,
+            StandardCost = p.StandardCost,
+            Size = p.Size,
+            SizeUnitMeasureCode = p.SizeUnitMeasureCode,
+            WeightUnitMeasureCode = p.WeightUnitMeasureCode,
+            Weight = p.Weight,
+            DaysToManufacture = p.DaysToManufacture,
+            ProductLine = p.ProductLine,
+            Class = p.Class,
+            Style = p.Style,
+            ProductSubcategoryID = p.ProductSubcategoryID,
+            ProductModelID = p.ProductModelID,
+            SellStartDate = p.SellStartDate,
+            SellEndDate = p.SellEndDate,
+            DiscontinuedDate = p.DiscontinuedDate
+        });
+    }
+
+    public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+    {
+        var products = await _repository.SearchAsync(name, categoryName, ct);
+
+        return products.Select(p => new ProductDto
+        {
+            ProductID = p.ProductID,
+            Name = p.Name,
+            ProductNumber = p.ProductNumber,
+            Color = p.Color,
+            ListPrice = p.ListPrice,
+            MakeFlag = p.MakeFlag,
+            FinishedGoodsFlag = p.FinishedGoodsFlag,
+            SafetyStockLevel = p.SafetyStockLevel,
+            ReorderPoint = p.ReorderPoint,
+            StandardCost = p.StandardCost,
+            Size = p.Size,
+            SizeUnitMeasureCode = p.SizeUnitMeasureCode,
+            WeightUnitMeasureCode = p.WeightUnitMeasureCode,
+            Weight = p.Weight,
+            DaysToManufacture = p.DaysToManufacture,
+            ProductLine = p.ProductLine,
+            Class = p.Class,
+            Style = p.Style,
+            ProductSubcategoryID = p.ProductSubcategoryID,
+            ProductModelID = p.ProductModelID,
+            SellStartDate = p.SellStartDate,
+            SellEndDate = p.SellEndDate,
+            DiscontinuedDate = p.DiscontinuedDate
+        });
+    }
+
+    public async Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default)
+    {
+        var product = new Product
+        {
+            ProductID = dto.ProductID,
+            Name = dto.Name,
+            ProductNumber = dto.ProductNumber,
+            Color = dto.Color,
+            ListPrice = dto.ListPrice,
+            MakeFlag = dto.MakeFlag,
+            FinishedGoodsFlag = dto.FinishedGoodsFlag,
+            SafetyStockLevel = dto.SafetyStockLevel,
+            ReorderPoint = dto.ReorderPoint,
+            StandardCost = dto.StandardCost,
+            Size = dto.Size,
+            SizeUnitMeasureCode = dto.SizeUnitMeasureCode,
+            WeightUnitMeasureCode = dto.WeightUnitMeasureCode,
+            Weight = dto.Weight,
+            DaysToManufacture = dto.DaysToManufacture,
+            ProductLine = dto.ProductLine,
+            Class = dto.Class,
+            Style = dto.Style,
+            ProductSubcategoryID = dto.ProductSubcategoryID,
+            ProductModelID = dto.ProductModelID,
+            SellStartDate = dto.SellStartDate,
+            SellEndDate = dto.SellEndDate,
+            DiscontinuedDate = dto.DiscontinuedDate
+        };
+
+        var created = await _repository.CreateAsync(product, ct);
+
+        return new ProductDto
+        {
+            ProductID = created.ProductID,
+            Name = created.Name,
+            ProductNumber = created.ProductNumber,
+            Color = created.Color,
+            ListPrice = created.ListPrice,
+            MakeFlag = created.MakeFlag,
+            FinishedGoodsFlag = created.FinishedGoodsFlag,
+            SafetyStockLevel = created.SafetyStockLevel,
+            ReorderPoint = created.ReorderPoint,
+            StandardCost = created.StandardCost,
+            Size = created.Size,
+            SizeUnitMeasureCode = created.SizeUnitMeasureCode,
+            WeightUnitMeasureCode = created.WeightUnitMeasureCode,
+            Weight = created.Weight,
+            DaysToManufacture = created.DaysToManufacture,
+            ProductLine = created.ProductLine,
+            Class = created.Class,
+            Style = created.Style,
+            ProductSubcategoryID = created.ProductSubcategoryID,
+            ProductModelID = created.ProductModelID,
+            SellStartDate = created.SellStartDate,
+            SellEndDate = created.SellEndDate,
+            DiscontinuedDate = created.DiscontinuedDate
+        };
+    }
+
+    public async Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default)
+    {
+        var product = new Product
+        {
+            ProductID = dto.ProductID,
+            Name = dto.Name,
+            ProductNumber = dto.ProductNumber,
+            Color = dto.Color,
+            ListPrice = dto.ListPrice,
+            MakeFlag = dto.MakeFlag,
+            FinishedGoodsFlag = dto.FinishedGoodsFlag,
+            SafetyStockLevel = dto.SafetyStockLevel,
+            ReorderPoint = dto.ReorderPoint,
+            StandardCost = dto.StandardCost,
+            Size = dto.Size,
+            SizeUnitMeasureCode = dto.SizeUnitMeasureCode,
+            WeightUnitMeasureCode = dto.WeightUnitMeasureCode,
+            Weight = dto.Weight,
+            DaysToManufacture = dto.DaysToManufacture,
+            ProductLine = dto.ProductLine,
+            Class = dto.Class,
+            Style = dto.Style,
+            ProductSubcategoryID = dto.ProductSubcategoryID,
+            ProductModelID = dto.ProductModelID,
+            SellStartDate = dto.SellStartDate,
+            SellEndDate = dto.SellEndDate,
+            DiscontinuedDate = dto.DiscontinuedDate
+        };
+
+        var updated = await _repository.UpdateAsync(id, product, ct);
+
+        return new ProductDto
+        {
+            ProductID = updated.ProductID,
+            Name = updated.Name,
+            ProductNumber = updated.ProductNumber,
+            Color = updated.Color,
+            ListPrice = updated.ListPrice,
+            MakeFlag = updated.MakeFlag,
+            FinishedGoodsFlag = updated.FinishedGoodsFlag,
+            SafetyStockLevel = updated.SafetyStockLevel,
+            ReorderPoint = updated.ReorderPoint,
+            StandardCost = updated.StandardCost,
+            Size = updated.Size,
+            SizeUnitMeasureCode = updated.SizeUnitMeasureCode,
+            WeightUnitMeasureCode = updated.WeightUnitMeasureCode,
+            Weight = updated.Weight,
+            DaysToManufacture = updated.DaysToManufacture,
+            ProductLine = updated.ProductLine,
+            Class = updated.Class,
+            Style = updated.Style,
+            ProductSubcategoryID = updated.ProductSubcategoryID,
+            ProductModelID = updated.ProductModelID,
+            SellStartDate = updated.SellStartDate,
+            SellEndDate = updated.SellEndDate,
+            DiscontinuedDate = updated.DiscontinuedDate
+        };
+    }
+
+    public Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        return _repository.DeleteAsync(id, ct);
     }
 }
