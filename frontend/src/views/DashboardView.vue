@@ -25,6 +25,7 @@
         <div class="kpi-card">
           <h3>Low Stock Products</h3>
           <p class="kpi-value">{{ lowStockProducts.length }}</p>
+          <p class="kpi-subtext">Threshold: {{ lowStockThreshold }}</p>
         </div>
       </div>
 
@@ -39,13 +40,19 @@
         <div class="chart-card">
           <h3>Customer Analysis by Person Type</h3>
           <div class="chart-wrapper">
-            <Bar :data="personTypeChartData" :options="chartOptions" />
+            <Bar :data="personTypeChartData" :options="barChartOptions" />
           </div>
         </div>
       </div>
 
       <div class="table-card">
-        <h3>Stock Management</h3>
+        <div class="table-header">
+          <h3>Stock Management</h3>
+          <span class="table-note">
+            Products with Safety Stock Level ≤ {{ lowStockThreshold }}
+          </span>
+        </div>
+
         <table class="data-table">
           <thead>
             <tr>
@@ -68,7 +75,17 @@
               <td>{{ product.productID }}</td>
               <td>{{ product.name }}</td>
               <td>{{ product.productNumber }}</td>
-              <td>{{ product.safetyStockLevel }}</td>
+              <td>
+                <span
+                  class="stock-badge"
+                  :class="{
+                    critical: product.safetyStockLevel <= 100,
+                    warning: product.safetyStockLevel > 100 && product.safetyStockLevel <= lowStockThreshold
+                  }"
+                >
+                  {{ product.safetyStockLevel }}
+                </span>
+              </td>
               <td>{{ formatCurrency(product.listPrice) }}</td>
             </tr>
           </tbody>
@@ -127,25 +144,28 @@ export default {
     },
 
     lowStockProducts() {
-      return this.products.filter(
-        (product) => product.safetyStockLevel <= this.lowStockThreshold
-      );
+      return [...this.products]
+        .filter((product) => product.safetyStockLevel <= this.lowStockThreshold)
+        .sort((a, b) => a.safetyStockLevel - b.safetyStockLevel);
     },
 
     colorChartData() {
       const grouped = {};
 
       for (const product of this.products) {
-        const color = product.color || "No Color";
+        const rawColor = product.color?.trim();
+        const color = rawColor ? rawColor : "No Color";
         grouped[color] = (grouped[color] || 0) + 1;
       }
 
+      const sortedEntries = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
+
       return {
-        labels: Object.keys(grouped),
+        labels: sortedEntries.map(([label]) => label),
         datasets: [
           {
             label: "Products by Color",
-            data: Object.values(grouped),
+            data: sortedEntries.map(([, value]) => value),
           },
         ],
       };
@@ -155,16 +175,18 @@ export default {
       const grouped = {};
 
       for (const person of this.people) {
-        const type = person.personType || "Unknown";
+        const type = person.personType?.trim() || "Unknown";
         grouped[type] = (grouped[type] || 0) + 1;
       }
 
+      const sortedEntries = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
+
       return {
-        labels: Object.keys(grouped),
+        labels: sortedEntries.map(([label]) => label),
         datasets: [
           {
             label: "People by Person Type",
-            data: Object.values(grouped),
+            data: sortedEntries.map(([, value]) => value),
           },
         ],
       };
@@ -174,6 +196,31 @@ export default {
       return {
         responsive: true,
         maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+      };
+    },
+
+    barChartOptions() {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0,
+            },
+          },
+        },
       };
     },
   },
@@ -191,7 +238,7 @@ export default {
 
       try {
         const [peopleResponse, productsResponse] = await Promise.all([
-          peopleService.getAll(),
+          peopleService.getAll(1, 2000),
           productsService.getAll(),
         ]);
 
@@ -248,6 +295,12 @@ export default {
   color: #3498db;
 }
 
+.kpi-subtext {
+  margin-top: 0.5rem;
+  color: #777;
+  font-size: 0.95rem;
+}
+
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -258,6 +311,19 @@ export default {
 .chart-wrapper {
   position: relative;
   height: 320px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.table-note {
+  color: #666;
+  font-size: 0.95rem;
 }
 
 .data-table {
@@ -279,6 +345,25 @@ export default {
 
 .low-stock-row {
   background: #fff5f5;
+}
+
+.stock-badge {
+  display: inline-block;
+  min-width: 56px;
+  text-align: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.stock-badge.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.stock-badge.critical {
+  background: #f8d7da;
+  color: #842029;
 }
 
 .placeholder {
@@ -305,6 +390,11 @@ export default {
 @media (max-width: 900px) {
   .charts-grid {
     grid-template-columns: 1fr;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
