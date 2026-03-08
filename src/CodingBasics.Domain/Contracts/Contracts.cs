@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using CodingBasics.Domain.AdventureWorks.Entities;
 
 namespace CodingBasics.Domain.Contracts;
 
@@ -11,9 +12,13 @@ public interface IPersonService
 {
     Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
     Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
-    // TODO: Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
-    // TODO: Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
-    // TODO: Task DeleteAsync(int id, CancellationToken ct = default);
+
+    Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
+
+    Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
+
+    Task DeleteAsync(int id, CancellationToken ct = default);
+
 }
 
 /// <summary>
@@ -24,9 +29,9 @@ public interface IProductService
 {
     Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default);
     Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
-    // TODO: Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
-    // TODO: Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default);
-    // TODO: Task DeleteAsync(int id, CancellationToken ct = default);
+    Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
+    Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default);
+    Task DeleteAsync(int id, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -35,14 +40,18 @@ public interface IProductService
 /// TODO (Workshop): Add Create, Update, Delete methods for full CRUD support
 /// </summary>
 public interface IPersonRepository
-{
-    Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
-    Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
-    // TODO: Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
-    // TODO: Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
-    // TODO: Task DeleteAsync(int id, CancellationToken ct = default);
+{ 
+    Task<IEnumerable<Person>> GetAllAsync(CancellationToken ct = default);
+    Task<IEnumerable<Person>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
+
+    Task<Person> CreateAsync(Person person, CancellationToken ct = default);
+    Task<Person> UpdateAsync(int id, Person person, CancellationToken ct = default);
+    Task DeleteAsync(int id, CancellationToken ct = default);
+
+    
 }
 
+/// 
 /// <summary>
 /// Repository contract for Product data access.
 /// Implementation should use EF Core with AdventureWorksDbContext.
@@ -51,9 +60,9 @@ public interface IPersonRepository
 /// </summary>
 public interface IProductRepository
 {
-    Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default);
-    Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
-    // TODO: Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
-    // TODO: Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default);
-    // TODO: Task DeleteAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<Product>> GetAllAsync(CancellationToken ct = default);
+    Task<IEnumerable<Product>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
+     Task<Product> CreateAsync(Product product, CancellationToken ct = default);
+    Task<Product> UpdateAsync(int id, Product product, CancellationToken ct = default);
+    Task DeleteAsync(int id, CancellationToken ct = default);
 }
