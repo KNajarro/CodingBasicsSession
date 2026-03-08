@@ -81,6 +81,7 @@ app.MapGet("/api/people/search", async (
 .WithName("SearchPeople")
 .WithTags("People");
 
+/*
 app.MapPost("/api/people", async (
     [FromBody] PersonDto dto,
     [FromServices] IPersonService service,
@@ -91,6 +92,7 @@ app.MapPost("/api/people", async (
 })
 .WithName("CreatePerson")
 .WithTags("People");
+*/
 
 app.MapPut("/api/people/{id:int}", async (
     int id,

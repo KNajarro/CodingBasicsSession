@@ -27,10 +27,13 @@ public sealed class PersonService : IPersonService
         return await _repository.SearchAsync(name, personType, ct);
     }
 
+
+/*
     public async Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default)
     {
         return await _repository.CreateAsync(dto, ct);
     }
+    */
 
     public async Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default)
     {

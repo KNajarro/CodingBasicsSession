@@ -17,7 +17,7 @@ public sealed class PersonDto
     public string? Suffix { get; set; }
     public int EmailPromotion { get; set; }
     public string? AdditionalContactInfo { get; set; }
-    public string? Demographics { get; set; }
+    
 
     /// <summary>
     /// Computed full name for display purposes.

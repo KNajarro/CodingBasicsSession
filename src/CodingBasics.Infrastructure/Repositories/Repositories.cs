@@ -36,7 +36,7 @@ public sealed class PersonRepository : IPersonRepository
             Suffix = p.Suffix,
             EmailPromotion = p.EmailPromotion,
             AdditionalContactInfo = p.AdditionalContactInfo,
-            Demographics = p.Demographics
+            
             })
             .ToListAsync(ct);
     }
@@ -65,14 +65,15 @@ public sealed class PersonRepository : IPersonRepository
             Suffix = p.Suffix,
             EmailPromotion = p.EmailPromotion,
             AdditionalContactInfo = p.AdditionalContactInfo,
-            Demographics = p.Demographics
+            
         })
         .ToListAsync(ct);
 
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        
     }
 
     // TODO (Workshop): Implement CreateAsync, UpdateAsync, DeleteAsync for Person
+    /*
     public async Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default)
 {
     var person = new Person
@@ -87,8 +88,11 @@ public sealed class PersonRepository : IPersonRepository
         Suffix = dto.Suffix,
         EmailPromotion = dto.EmailPromotion,
         AdditionalContactInfo = dto.AdditionalContactInfo,
-        Demographics = dto.Demographics
+        
     };
+
+    person.rowguid = Guid.NewGuid();
+person.ModifiedDate = DateTime.Now;
 
     await _context.People.AddAsync(person, ct);
     await _context.SaveChangesAsync(ct);
@@ -105,10 +109,10 @@ public sealed class PersonRepository : IPersonRepository
         Suffix = person.Suffix,
         EmailPromotion = person.EmailPromotion,
         AdditionalContactInfo = person.AdditionalContactInfo,
-        Demographics = person.Demographics
+        
     };
 }
-
+*/
 public async Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default)
 {
     var person = await _context.People.FirstOrDefaultAsync(p => p.BusinessEntityID == id, ct);
@@ -125,7 +129,8 @@ public async Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToke
     person.Suffix = dto.Suffix;
     person.EmailPromotion = dto.EmailPromotion;
     person.AdditionalContactInfo = dto.AdditionalContactInfo;
-    person.Demographics = dto.Demographics;
+    person.ModifiedDate = DateTime.Now;
+    
 
     await _context.SaveChangesAsync(ct);
 
@@ -141,7 +146,7 @@ public async Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToke
         Suffix = person.Suffix,
         EmailPromotion = person.EmailPromotion,
         AdditionalContactInfo = person.AdditionalContactInfo,
-        Demographics = person.Demographics
+        
     };
 }
 
@@ -289,6 +294,9 @@ public sealed class ProductRepository : IProductRepository
             DiscontinuedDate = dto.DiscontinuedDate
         };
 
+        product.rowguid = Guid.NewGuid();
+product.ModifiedDate = DateTime.Now;
+
         await _context.Products.AddAsync(product, ct);
         await _context.SaveChangesAsync(ct);
 
@@ -370,6 +378,8 @@ public sealed class ProductRepository : IProductRepository
         product.SellStartDate = dto.SellStartDate;
         product.SellEndDate = dto.SellEndDate;
         product.DiscontinuedDate = dto.DiscontinuedDate;
+        product.ModifiedDate = DateTime.Now;
+        
 
         await _context.SaveChangesAsync(ct);
 

@@ -13,7 +13,7 @@ public interface IPersonService
     Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
     Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
 
-    Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
+    // Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
 
     Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
 
@@ -43,7 +43,7 @@ public interface IPersonRepository
 { 
     Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
     Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
-     Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
+    //  Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
 
     Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
     Task DeleteAsync(int id, CancellationToken ct = default);
