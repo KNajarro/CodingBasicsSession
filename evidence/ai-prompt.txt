@@ -1,0 +1,21 @@
+AI Prompt used to build the Dashboard challenge
+
+Context:
+This workshop uses a .NET Web API with AdventureWorks database and a Vue.js frontend.
+The goal of the challenge is to build a dashboard that consumes the API and displays analytics.
+
+Prompt used with AI:
+
+"I am working on a C# .NET API with EF Core and a Vue.js frontend.
+The backend exposes endpoints for People and Products using AdventureWorks database.
+
+I need to implement a Dashboard page in Vue that:
+- Displays KPI cards such as Total Products, Total People and Inventory Value
+- Shows a chart of product distribution by color
+- Shows a chart grouping people by PersonType
+- Shows a table with products that have low SafetyStockLevel
+
+Use vue-chartjs for the charts and make the dashboard responsive."
+
+The AI helped generate the initial dashboard structure and charts,
+then the code was refined manually to connect with the API and improve the UI/UX.
