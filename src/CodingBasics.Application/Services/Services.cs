@@ -20,13 +20,30 @@ public sealed class PersonService : IPersonService
         return await _repository.GetAllAsync(ct);
     }
 
-    public Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
+    public async Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, personType, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        return await _repository.SearchAsync(name, personType, ct);
+    }
+      
+    // TODO: Implement CreateAsync, UpdateAsync, DeleteAsync for Person
+
+    public async Task<PersonDto> CreateAsync(PersonDto person, CancellationToken ct = default)
+    {
+        // Llama al repositorio para insertar una nueva persona
+        return await _repository.CreateAsync(person, ct);
     }
 
-    // TODO: Implement CreateAsync, UpdateAsync, DeleteAsync for Person
+    public async Task<PersonDto> UpdateAsync(PersonDto person, CancellationToken ct = default)
+    {
+        // Envía los cambios de una persona existente al repositorio
+        return await _repository.UpdateAsync(person, ct);
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        // Ordena al repositorio eliminar por el ID (BusinessEntityID)
+        await _repository.DeleteAsync(id, ct);
+    }
 }
 
 /// <summary>
@@ -35,22 +52,24 @@ public sealed class PersonService : IPersonService
 /// </summary>
 public sealed class ProductService : IProductService
 {
-    // TODO: private readonly IProductRepository _repository;
+    // 1. Declaramos la herramienta (Repositorio)
+    private readonly IProductRepository _repository;
 
-    // TODO: public ProductService(IProductRepository repository)
-    // {
-    //     _repository = repository;
-    // }
-
-    public Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
+    // 2. El Constructor: Aquí es donde "Inyectamos" el repositorio
+    public ProductService(IProductRepository repository)
     {
-        // TODO: return _repository.GetAllAsync(ct);
-        throw new NotImplementedException("Workshop: Implement GetAllAsync");
+        _repository = repository;
     }
 
-    public Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+    // 3. Implementamos el método para traer todo
+    public async Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, categoryName, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        return await _repository.GetAllAsync(ct);
+    }
+
+    // 4. Implementamos el método de búsqueda y filtros
+    public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+    {
+        return await _repository.SearchAsync(name, categoryName, ct);
     }
 }

@@ -17,6 +17,19 @@ builder.Services.AddApplication();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
+//Setting up CORS to avoid blocks due to 2 different ports situation
+
+// Registering CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowVue", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") // Vue Origin
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure HTTP request pipeline
@@ -26,16 +39,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//Activating CORS 
+
+app.UseCors("AllowVue");
+
 // ============================================
 // PEOPLE ENDPOINTS
 // ============================================
-
-// TODO (Workshop): Implement full CRUD endpoints for People
-// - GET /api/people
-// - GET /api/people/search
-// - POST /api/people
-// - PUT /api/people/{id}
-// - DELETE /api/people/{id}
 
 app.MapGet("/api/people", async (
     [FromServices] IPersonService service,
@@ -49,34 +59,48 @@ app.MapGet("/api/people", async (
     var all = await service.GetAllAsync(ct);
     var totalCount = all.Count();
     var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-    var response = new
-    {
-        page,
-        pageSize,
-        totalCount,
-        items
-    };
-    return Results.Ok(response);
+    
+    return Results.Ok(new { page, pageSize, totalCount, items });
 })
 .WithName("GetAllPeople")
 .WithTags("People");
 
-// app.MapGet("/api/people/search", async (
-//     string? name,
-//     string? personType,
-//     IPersonService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO: Implement search people
-//     throw new NotImplementedException("Workshop: Implement GET /api/people/search");
-// })
-// .WithName("SearchPeople")
-// .WithTags("People")
-// .WithOpenApi();
+app.MapGet("/api/people/search", async (
+    string? name,
+    string? personType,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, personType, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchPeople")
+.WithTags("People");
 
-// TODO: Implement POST /api/people (create)
-// TODO: Implement PUT /api/people/{id} (update)
-// TODO: Implement DELETE /api/people/{id} (delete)
+
+app.MapPost("/api/people", async (PersonDto dto, [FromServices] IPersonService service, CancellationToken ct) =>
+{
+    var result = await service.CreateAsync(dto, ct);
+    return Results.Created($"/api/people/{result.BusinessEntityID}", result);
+})
+.WithName("CreatePerson")
+.WithTags("People");
+
+app.MapPut("/api/people/{id}", async (int id, PersonDto dto, [FromServices] IPersonService service, CancellationToken ct) =>
+{
+    var result = await service.UpdateAsync(dto, ct);
+    return Results.Ok(result);
+})
+.WithName("UpdatePerson")
+.WithTags("People");
+
+app.MapDelete("/api/people/{id}", async (int id, [FromServices] IPersonService service, CancellationToken ct) =>
+{
+    await service.DeleteAsync(id, ct);
+    return Results.NoContent();
+})
+.WithName("DeletePerson")
+.WithTags("People");
 
 // ============================================
 // PRODUCTS ENDPOINTS
@@ -88,29 +112,26 @@ app.MapGet("/api/people", async (
 // - DELETE /api/products/{id}
 // ============================================
 
-// app.MapGet("/api/products", async (IProductService service, CancellationToken ct) =>
-// {
-//     // var result = await service.GetAllAsync(ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products");
-// })
-// .WithName("GetAllProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+app.MapGet("/api/products", async ([FromServices] IProductService service, CancellationToken ct) =>
+{
+    var result = await service.GetAllAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("GetAllProducts")
+.WithTags("Products");
 
-// app.MapGet("/api/products/search", async (
-//     string? name,
-//     string? categoryName,
-//     IProductService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO (Workshop): Implement endpoint with optional filters
-//     // var result = await service.SearchAsync(name, categoryName, ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products/search");
-// })
-// .WithName("SearchProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+
+app.MapGet("/api/products/search", async (
+    string? name,
+    string? categoryName,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, categoryName, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchProducts")
+.WithTags("Products");
+
 
 app.Run();
