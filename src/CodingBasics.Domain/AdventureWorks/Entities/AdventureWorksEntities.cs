@@ -3,7 +3,6 @@ namespace CodingBasics.Domain.AdventureWorks.Entities;
 /// <summary>
 /// Maps to Person.Person table in AdventureWorks database.
 /// Schema: Person | Primary Key: BusinessEntityID
-/// TODO (Workshop): Ensure entity supports full CRUD operations (Create, Read, Update, Delete)
 /// </summary>
 public sealed class Person
 {
@@ -25,7 +24,6 @@ public sealed class Person
 /// <summary>
 /// Maps to Production.Product table in AdventureWorks database.
 /// Schema: Production | Primary Key: ProductID
-/// TODO (Workshop): Ensure entity supports full CRUD operations (Create, Read, Update, Delete)
 /// </summary>
 public sealed class Product
 {

@@ -1,7 +1,9 @@
 using CodingBasics.Application;
 using CodingBasics.Infrastructure;
 using CodingBasics.Domain.Contracts;
+using CodingBasics.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,18 +26,19 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // development convenience: some AdventureWorks tables include insert triggers
+    // which block EF Core's OUTPUT clause.  Automatically disable them so the
+    // API works out of the box and you don't have to run SQL manually.
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AdventureWorksDbContext>();
+    db.Database.ExecuteSqlRaw("ALTER TABLE Person.Person DISABLE TRIGGER ALL;");
+    db.Database.ExecuteSqlRaw("ALTER TABLE Production.Product DISABLE TRIGGER ALL;");
 }
 
 // ============================================
 // PEOPLE ENDPOINTS
 // ============================================
-
-// TODO (Workshop): Implement full CRUD endpoints for People
-// - GET /api/people
-// - GET /api/people/search
-// - POST /api/people
-// - PUT /api/people/{id}
-// - DELETE /api/people/{id}
 
 app.MapGet("/api/people", async (
     [FromServices] IPersonService service,
@@ -46,71 +49,157 @@ app.MapGet("/api/people", async (
 {
     if (page < 1) page = 1;
     if (pageSize < 1) pageSize = 20;
-    var all = await service.GetAllAsync(ct);
-    var totalCount = all.Count();
-    var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+    var paged = await service.GetAllAsync(page, pageSize, ct);
     var response = new
     {
         page,
         pageSize,
-        totalCount,
-        items
+        totalCount = paged.TotalCount,
+        items = paged.Items
     };
     return Results.Ok(response);
 })
 .WithName("GetAllPeople")
 .WithTags("People");
 
-// app.MapGet("/api/people/search", async (
-//     string? name,
-//     string? personType,
-//     IPersonService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO: Implement search people
-//     throw new NotImplementedException("Workshop: Implement GET /api/people/search");
-// })
-// .WithName("SearchPeople")
-// .WithTags("People")
-// .WithOpenApi();
+app.MapGet("/api/people/search", async (
+    [FromQuery] string? name,
+    [FromQuery] string? personType,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, personType, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchPeople")
+.WithTags("People")
+.WithOpenApi();
 
-// TODO: Implement POST /api/people (create)
-// TODO: Implement PUT /api/people/{id} (update)
-// TODO: Implement DELETE /api/people/{id} (delete)
+app.MapPost("/api/people", async (
+    [FromBody] PersonDto dto,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    try
+    {
+        var result = await service.CreateAsync(dto, ct);
+        return Results.Created($"/api/people/{result.BusinessEntityID}", result);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("CreatePerson")
+.WithTags("People")
+.WithOpenApi();
+
+app.MapPut("/api/people/{id:int}", async (
+    int id,
+    [FromBody] PersonDto dto,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    try
+    {
+        var result = await service.UpdateAsync(id, dto, ct);
+        return Results.Ok(result);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("UpdatePerson")
+.WithTags("People")
+.WithOpenApi();
+
+app.MapDelete("/api/people/{id:int}", async (
+    int id,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    await service.DeleteAsync(id, ct);
+    return Results.NoContent();
+})
+.WithName("DeletePerson")
+.WithTags("People")
+.WithOpenApi();
 
 // ============================================
 // PRODUCTS ENDPOINTS
-// TODO (Workshop): Implement full CRUD endpoints for Products
-// - GET /api/products
-// - GET /api/products/search
-// - POST /api/products
-// - PUT /api/products/{id}
-// - DELETE /api/products/{id}
 // ============================================
 
-// app.MapGet("/api/products", async (IProductService service, CancellationToken ct) =>
-// {
-//     // var result = await service.GetAllAsync(ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products");
-// })
-// .WithName("GetAllProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+app.MapGet("/api/products", async (
+    [FromServices] IProductService service,
+    CancellationToken ct,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20) =>
+{
+    if (page < 1) page = 1;
+    if (pageSize < 1) pageSize = 20;
+    var paged = await service.GetAllAsync(page, pageSize, ct);
+    var response = new
+    {
+        page,
+        pageSize,
+        totalCount = paged.TotalCount,
+        items = paged.Items
+    };
+    return Results.Ok(response);
+})
+.WithName("GetAllProducts")
+.WithTags("Products")
+.WithOpenApi();
 
-// app.MapGet("/api/products/search", async (
-//     string? name,
-//     string? categoryName,
-//     IProductService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO (Workshop): Implement endpoint with optional filters
-//     // var result = await service.SearchAsync(name, categoryName, ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products/search");
-// })
-// .WithName("SearchProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+app.MapGet("/api/products/search", async (
+    [FromQuery] string? name,
+    [FromQuery] string? categoryName,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, categoryName, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchProducts")
+.WithTags("Products")
+.WithOpenApi();
+
+app.MapPost("/api/products", async (
+    [FromBody] ProductDto dto,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.CreateAsync(dto, ct);
+    return Results.Created($"/api/products/{result.ProductID}", result);
+})
+.WithName("CreateProduct")
+.WithTags("Products")
+.WithOpenApi();
+
+app.MapPut("/api/products/{id:int}", async (
+    int id,
+    [FromBody] ProductDto dto,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.UpdateAsync(id, dto, ct);
+    return Results.Ok(result);
+})
+.WithName("UpdateProduct")
+.WithTags("Products")
+.WithOpenApi();
+
+app.MapDelete("/api/products/{id:int}", async (
+    int id,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    await service.DeleteAsync(id, ct);
+    return Results.NoContent();
+})
+.WithName("DeleteProduct")
+.WithTags("Products")
+.WithOpenApi();
 
 app.Run();

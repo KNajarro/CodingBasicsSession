@@ -7,9 +7,10 @@ import api from './api'
 export const peopleService = {
   /** GET /api/people - returns all PersonDto records */
   async getAll() {
-    // TODO: const response = await api.get('/people')
-    //       return response.data
-    throw new Error('Workshop: Implement getAll()')
+    const response = await api.get('/people', {
+      params: { pageSize: 100000 }
+    })
+    return response.data.items || []
   },
 
   /** GET /api/people/search?name=&personType= */

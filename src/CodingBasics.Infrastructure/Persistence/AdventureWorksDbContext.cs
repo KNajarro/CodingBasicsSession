@@ -5,7 +5,7 @@ namespace CodingBasics.Infrastructure.Persistence;
 
 /// <summary>
 /// EF Core DbContext for AdventureWorks database.
-/// TODO (Workshop): Complete OnModelCreating with proper table/schema mappings and ensure full CRUD support for entities.
+/// Configured with proper table/schema mappings, keys, and relationships for full CRUD support.
 /// </summary>
 public sealed class AdventureWorksDbContext : DbContext
 {
@@ -23,26 +23,34 @@ public sealed class AdventureWorksDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // TODO (Workshop): Map entities to AdventureWorks tables with correct schemas and keys.
+        // Configure entity mappings to AdventureWorks tables with correct schemas, keys, and relationships.
         //
         modelBuilder.Entity<Person>(entity =>
         {
             entity.ToTable("Person", "Person");
             entity.HasKey(e => e.BusinessEntityID);
         });
-        //
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.ToTable("Product", "Production");
             entity.HasKey(e => e.ProductID);
+            entity.HasOne<ProductSubcategory>()
+                .WithMany()
+                .HasForeignKey(e => e.ProductSubcategoryID)
+                .OnDelete(DeleteBehavior.SetNull);
         });
-        //
+
         modelBuilder.Entity<ProductSubcategory>(entity =>
         {
             entity.ToTable("ProductSubcategory", "Production");
             entity.HasKey(e => e.ProductSubcategoryID);
+            entity.HasOne<ProductCategory>()
+                .WithMany()
+                .HasForeignKey(e => e.ProductCategoryID)
+                .OnDelete(DeleteBehavior.Cascade);
         });
-        //
+
         modelBuilder.Entity<ProductCategory>(entity =>
         {
             entity.ToTable("ProductCategory", "Production");

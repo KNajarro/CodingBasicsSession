@@ -4,7 +4,6 @@ namespace CodingBasics.Application.Services;
 
 /// <summary>
 /// Person service implementation.
-/// TODO (Workshop): Inject IPersonRepository via constructor and implement full CRUD methods.
 /// </summary>
 public sealed class PersonService : IPersonService
 {
@@ -15,42 +14,82 @@ public sealed class PersonService : IPersonService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default)
+    private static void ValidatePerson(PersonDto dto)
     {
-        return await _repository.GetAllAsync(ct);
+        if (!string.IsNullOrEmpty(dto.PersonType) && dto.PersonType.Length > 2)
+        {
+            throw new ArgumentException("PersonType must be at most 2 characters.", nameof(dto.PersonType));
+        }
     }
 
-    public Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
+    public async Task<PaginatedList<PersonDto>> GetAllAsync(int page, int pageSize, CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, personType, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        return await _repository.GetAllAsync(page, pageSize, ct);
     }
 
-    // TODO: Implement CreateAsync, UpdateAsync, DeleteAsync for Person
+    public async Task<PaginatedList<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
+    {
+        var filter = $"{name} {personType}".Trim();
+        return await _repository.SearchAsync(filter, 1, 1000, ct);
+    }
+
+    public async Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default)
+    {
+        ValidatePerson(dto);
+        return await _repository.CreateAsync(dto, ct);
+    }
+
+    public async Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default)
+    {
+        ValidatePerson(dto);
+        dto.BusinessEntityID = id;
+        await _repository.UpdateAsync(dto, ct);
+        return dto;
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        await _repository.DeleteAsync(id, ct);
+    }
 }
 
 /// <summary>
 /// Product service implementation.
-/// TODO (Workshop): Inject IProductRepository via constructor and implement methods.
 /// </summary>
 public sealed class ProductService : IProductService
 {
-    // TODO: private readonly IProductRepository _repository;
+    private readonly IProductRepository _repository;
 
-    // TODO: public ProductService(IProductRepository repository)
-    // {
-    //     _repository = repository;
-    // }
-
-    public Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
+    public ProductService(IProductRepository repository)
     {
-        // TODO: return _repository.GetAllAsync(ct);
-        throw new NotImplementedException("Workshop: Implement GetAllAsync");
+        _repository = repository;
     }
 
-    public Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+    public async Task<PaginatedList<ProductDto>> GetAllAsync(int page, int pageSize, CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, categoryName, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        return await _repository.GetAllAsync(page, pageSize, ct);
+    }
+
+    public async Task<PaginatedList<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+    {
+        var filter = $"{name} {categoryName}".Trim();
+        return await _repository.SearchAsync(filter, 1, 1000, ct);
+    }
+
+    public async Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default)
+    {
+        return await _repository.CreateAsync(dto, ct);
+    }
+
+    public async Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default)
+    {
+        dto.ProductID = id;
+        await _repository.UpdateAsync(dto, ct);
+        return dto;
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken ct = default)
+    {
+        await _repository.DeleteAsync(id, ct);
     }
 }

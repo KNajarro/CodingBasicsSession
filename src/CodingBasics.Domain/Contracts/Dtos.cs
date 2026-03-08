@@ -3,11 +3,14 @@ namespace CodingBasics.Domain.Contracts;
 /// <summary>
 /// DTO representing a Person record for API responses.
 /// Mapped from Person.Person table.
-/// TODO (Workshop): Ensure DTO supports full CRUD operations (Create, Read, Update, Delete)
 /// </summary>
 public sealed class PersonDto
 {
     public int BusinessEntityID { get; set; }
+    
+    // two‑character code: "EM", "SP", "IN", etc. matches AdventureWorks schema (nchar(2)).
+    [System.ComponentModel.DataAnnotations.StringLength(2, MinimumLength = 0,
+        ErrorMessage = "PersonType must be at most 2 characters.")]
     public string PersonType { get; set; } = string.Empty;
     public string? Title { get; set; }
     public string FirstName { get; set; } = string.Empty;
@@ -26,7 +29,6 @@ public sealed class PersonDto
 /// <summary>
 /// DTO representing a Product record with category information for API responses.
 /// Requires joins: Product -> ProductSubcategory -> ProductCategory
-/// TODO (Workshop): Ensure DTO supports full CRUD operations (Create, Read, Update, Delete)
 /// </summary>
 public sealed class ProductDto
 {
