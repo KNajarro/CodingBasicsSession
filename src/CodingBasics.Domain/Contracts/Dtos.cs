@@ -36,6 +36,8 @@ public sealed class ProductDto
     public string? Color { get; set; }
     public decimal ListPrice { get; set; }
 
+    public short SafetyStockLevel { get; set; }
+
     /// <summary>
     /// Category name from Production.ProductCategory (via ProductSubcategory join).
     /// Examples: "Bikes", "Components", "Clothing", "Accessories"
