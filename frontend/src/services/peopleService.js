@@ -7,19 +7,17 @@ import api from './api'
 export const peopleService = {
   /** GET /api/people - returns all PersonDto records */
   async getAll() {
-    // TODO: const response = await api.get('/people')
-    //       return response.data
-    throw new Error('Workshop: Implement getAll()')
+    const response = await api.get('/people')
+    return response.data.items
   },
 
   /** GET /api/people/search?name=&personType= */
   async search(name, personType) {
-    // TODO: const params = {}
-    //       if (name)       params.name       = name
-    //       if (personType) params.personType = personType
-    //       const response = await api.get('/people/search', { params })
-    //       return response.data
-    throw new Error('Workshop: Implement search()')
+    const params = {}
+    if (name)       params.name       = name
+    if (personType) params.personType = personType
+    const response = await api.get('/people/search', { params })
+    return response.data.items
   },
 
   /** POST /api/people - create a new person */

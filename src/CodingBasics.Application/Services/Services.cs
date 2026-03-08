@@ -22,8 +22,7 @@ public sealed class PersonService : IPersonService
 
     public Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, personType, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        return _repository.SearchAsync(name, personType, ct);
     }
 
     // TODO: Implement CreateAsync, UpdateAsync, DeleteAsync for Person
@@ -35,22 +34,20 @@ public sealed class PersonService : IPersonService
 /// </summary>
 public sealed class ProductService : IProductService
 {
-    // TODO: private readonly IProductRepository _repository;
+    private readonly IProductRepository _repository;
 
-    // TODO: public ProductService(IProductRepository repository)
-    // {
-    //     _repository = repository;
-    // }
+    public ProductService(IProductRepository repository)
+    {
+        _repository = repository;
+    }
 
     public Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
     {
-        // TODO: return _repository.GetAllAsync(ct);
-        throw new NotImplementedException("Workshop: Implement GetAllAsync");
+        return _repository.GetAllAsync(ct);
     }
 
     public Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
     {
-        // TODO: return _repository.SearchAsync(name, categoryName, ct);
-        throw new NotImplementedException("Workshop: Implement SearchAsync");
+        return _repository.SearchAsync(name, categoryName, ct);
     }
 }
