@@ -3,6 +3,8 @@ using CodingBasics.Infrastructure;
 using CodingBasics.Domain.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the DI container
@@ -37,6 +39,12 @@ if (app.Environment.IsDevelopment())
 // - PUT /api/people/{id}
 // - DELETE /api/people/{id}
 
+/*
+[FromServices]tell ASP.NET that the parameter must 
+be taken from the dependency injection container, 
+not from the HTTP request body, query string, or route.
+*/
+
 app.MapGet("/api/people", async (
     [FromServices] IPersonService service,
     CancellationToken ct,
@@ -61,18 +69,45 @@ app.MapGet("/api/people", async (
 .WithName("GetAllPeople")
 .WithTags("People");
 
-// app.MapGet("/api/people/search", async (
-//     string? name,
-//     string? personType,
-//     IPersonService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO: Implement search people
-//     throw new NotImplementedException("Workshop: Implement GET /api/people/search");
-// })
-// .WithName("SearchPeople")
-// .WithTags("People")
-// .WithOpenApi();
+
+app.MapPost("/api/people", async (
+    [FromBody] PersonDto dto,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var created = await service.CreateAsync(dto, ct);
+    return Results.Ok(created);
+})
+.WithName("CreatePerson")
+.WithTags("People");
+
+app.MapPut("/api/people/{id:int}", async (
+    int id,
+    [FromBody] PersonDto dto,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var updated = await service.UpdateAsync(id, dto, ct);
+    return Results.Ok(updated);
+})
+.WithName("UpdatePerson")
+.WithTags("People");
+
+app.MapDelete("/api/people/{id:int}", async (
+    int id,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    await service.DeleteAsync(id, ct);
+    return Results.NoContent();
+})
+.WithName("DeletePerson")
+.WithTags("People");
+
+
+
+
+
 
 // TODO: Implement POST /api/people (create)
 // TODO: Implement PUT /api/people/{id} (update)
@@ -88,29 +123,60 @@ app.MapGet("/api/people", async (
 // - DELETE /api/products/{id}
 // ============================================
 
-// app.MapGet("/api/products", async (IProductService service, CancellationToken ct) =>
-// {
-//     // var result = await service.GetAllAsync(ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products");
-// })
-// .WithName("GetAllProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+app.MapGet("/api/products", async (
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.GetAllAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("GetAllProducts")
+.WithTags("Products");
 
-// app.MapGet("/api/products/search", async (
-//     string? name,
-//     string? categoryName,
-//     IProductService service,
-//     CancellationToken ct) =>
-// {
-//     // TODO (Workshop): Implement endpoint with optional filters
-//     // var result = await service.SearchAsync(name, categoryName, ct);
-//     // return Results.Ok(result);
-//     throw new NotImplementedException("Workshop: Implement GET /api/products/search");
-// })
-// .WithName("SearchProducts")
-// .WithTags("Products")
-// .WithOpenApi();
+app.MapGet("/api/products/search", async (
+    string? name,
+    string? categoryName,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, categoryName, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchProducts")
+.WithTags("Products");
+
+app.MapPost("/api/products", async (
+    [FromBody] ProductDto dto,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var created = await service.CreateAsync(dto, ct);
+    return Results.Ok(created);
+})
+.WithName("CreateProduct")
+.WithTags("Products");
+
+app.MapPut("/api/products/{id:int}", async (
+    int id,
+    [FromBody] ProductDto dto,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var updated = await service.UpdateAsync(id, dto, ct);
+    return Results.Ok(updated);
+})
+.WithName("UpdateProduct")
+.WithTags("Products");
+
+app.MapDelete("/api/products/{id:int}", async (
+    int id,
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    await service.DeleteAsync(id, ct);
+    return Results.NoContent();
+})
+.WithName("DeleteProduct")
+.WithTags("Products");
 
 app.Run();
