@@ -69,6 +69,17 @@ app.MapGet("/api/people", async (
 .WithName("GetAllPeople")
 .WithTags("People");
 
+app.MapGet("/api/people/search", async (
+    string? name,
+    string? personType,
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var result = await service.SearchAsync(name, personType, ct);
+    return Results.Ok(result);
+})
+.WithName("SearchPeople")
+.WithTags("People");
 
 app.MapPost("/api/people", async (
     [FromBody] PersonDto dto,
