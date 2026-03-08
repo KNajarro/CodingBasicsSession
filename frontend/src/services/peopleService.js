@@ -8,6 +8,26 @@ import api from './api'
 export const peopleService = {
   /**
    * GET /api/people - Retrieves all people with pagination
+   * Returns full pagination response with totalCount
+   * @param {number} page - Page number (default 1)
+   * @param {number} pageSize - Number of items per page (default 20)
+   * @returns {Promise<Object>} Object with { items, totalCount, page, pageSize }
+   */
+  async getAllWithPagination(page = 1, pageSize = 20) {
+    const response = await api.get('/people', {
+      params: { page, pageSize }
+    })
+    return {
+      items: response.data.items || [],
+      totalCount: response.data.totalCount || 0,
+      page: response.data.page || page,
+      pageSize: response.data.pageSize || pageSize
+    }
+  },
+
+  /**
+   * GET /api/people - Retrieves all people with pagination
+   * Returns only items array for backward compatibility
    * @param {number} page - Page number (default 1)
    * @param {number} pageSize - Number of items per page (default 20)
    * @returns {Promise<Array>} Array of PersonDto records from the items property
@@ -22,6 +42,46 @@ export const peopleService = {
   /**
    * GET /api/people/search or by-name or by-type or by-name-and-type
    * Searches for people by name, personType, or both
+   * Returns full pagination response with totalCount
+   * @param {string|null} name - Optional name to search for
+   * @param {string|null} personType - Optional person type to filter by
+   * @param {number} page - Page number (default 1)
+   * @param {number} pageSize - Number of items per page (default 20)
+   * @returns {Promise<Object>} Object with { items, totalCount, page, pageSize }
+   */
+  async searchWithPagination(name = null, personType = null, page = 1, pageSize = 20) {
+    // Determine which endpoint to use based on provided parameters
+    let endpoint = '/people/search'
+    const params = { page, pageSize }
+
+    // Use specific endpoints for better performance when possible
+    if (name && personType) {
+      // Both name and type provided
+      endpoint = `/people/by-name-and-type/${encodeURIComponent(name)}/${encodeURIComponent(personType)}`
+    } else if (name) {
+      // Only name provided
+      endpoint = `/people/by-name/${encodeURIComponent(name)}`
+    } else if (personType) {
+      // Only person type provided
+      endpoint = `/people/by-type/${encodeURIComponent(personType)}`
+    } else {
+      // Neither provided, use general search
+      endpoint = '/people/search'
+    }
+
+    const response = await api.get(endpoint, { params })
+    return {
+      items: response.data.items || [],
+      totalCount: response.data.totalCount || 0,
+      page: response.data.page || page,
+      pageSize: response.data.pageSize || pageSize
+    }
+  },
+
+  /**
+   * GET /api/people/search or by-name or by-type or by-name-and-type
+   * Searches for people by name, personType, or both
+   * Returns only items array for backward compatibility
    * @param {string|null} name - Optional name to search for
    * @param {string|null} personType - Optional person type to filter by
    * @param {number} page - Page number (default 1)

@@ -8,6 +8,26 @@ import api from './api'
 export const productsService = {
   /**
    * GET /api/products - Retrieves all products with pagination
+   * Returns full pagination response with totalCount
+   * @param {number} page - Page number (default 1)
+   * @param {number} pageSize - Number of items per page (default 20)
+   * @returns {Promise<Object>} Object with { items, totalCount, page, pageSize }
+   */
+  async getAllWithPagination(page = 1, pageSize = 20) {
+    const response = await api.get('/products', {
+      params: { page, pageSize }
+    })
+    return {
+      items: response.data.items || [],
+      totalCount: response.data.totalCount || 0,
+      page: response.data.page || page,
+      pageSize: response.data.pageSize || pageSize
+    }
+  },
+
+  /**
+   * GET /api/products - Retrieves all products with pagination
+   * Returns only items array for backward compatibility
    * @param {number} page - Page number (default 1)
    * @param {number} pageSize - Number of items per page (default 20)
    * @returns {Promise<Array>} Array of ProductDto records from the items property
@@ -22,6 +42,64 @@ export const productsService = {
   /**
    * GET /api/products/by-name/{name} or /api/products/by-category/{categoryName}
    * Searches for products by name, category, or both
+   * Returns full pagination response with totalCount
+   * @param {string|null} name - Optional product name to search for
+   * @param {string|null} categoryName - Optional category name to filter by
+   * @param {number} page - Page number (default 1)
+   * @param {number} pageSize - Number of items per page (default 20)
+   * @returns {Promise<Object>} Object with { items, totalCount, page, pageSize }
+   */
+  async searchWithPagination(name = null, categoryName = null, page = 1, pageSize = 20) {
+    const params = { page, pageSize }
+
+    // Use specific endpoints based on provided parameters
+    if (name && categoryName) {
+      // If both are provided, search by name and filter by category on the client
+      // Note: API doesn't have a combined endpoint, so we fetch by name and filter client-side
+      const response = await api.get(`/products/by-name/${encodeURIComponent(name)}`, { params })
+      const items = (response.data.items || []).filter(p => 
+        p.categoryName && p.categoryName.toLowerCase() === categoryName.toLowerCase()
+      )
+      return {
+        items,
+        totalCount: items.length,
+        page,
+        pageSize
+      }
+    } else if (name) {
+      // Only name provided
+      const response = await api.get(`/products/by-name/${encodeURIComponent(name)}`, { params })
+      return {
+        items: response.data.items || [],
+        totalCount: response.data.totalCount || 0,
+        page: response.data.page || page,
+        pageSize: response.data.pageSize || pageSize
+      }
+    } else if (categoryName) {
+      // Only category provided
+      const response = await api.get(`/products/by-category/${encodeURIComponent(categoryName)}`, { params })
+      return {
+        items: response.data.items || [],
+        totalCount: response.data.totalCount || 0,
+        page: response.data.page || page,
+        pageSize: response.data.pageSize || pageSize
+      }
+    } else {
+      // Neither provided, get all products
+      const response = await api.get('/products', { params })
+      return {
+        items: response.data.items || [],
+        totalCount: response.data.totalCount || 0,
+        page: response.data.page || page,
+        pageSize: response.data.pageSize || pageSize
+      }
+    }
+  },
+
+  /**
+   * GET /api/products/by-name/{name} or /api/products/by-category/{categoryName}
+   * Searches for products by name, category, or both
+   * Returns only items array for backward compatibility
    * @param {string|null} name - Optional product name to search for
    * @param {string|null} categoryName - Optional category name to filter by
    * @param {number} page - Page number (default 1)

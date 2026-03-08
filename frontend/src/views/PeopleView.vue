@@ -53,8 +53,39 @@
              <td>{{ person.emailPromotion }}</td>
            </tr>
          </tbody>
-      </table>
-      <p class="record-count">Total: {{ people.length }}</p>
+       </table>
+       <div class="pagination-info">
+         <div class="info-text">
+           <span>Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong></span>
+           <span class="separator">•</span>
+           <span>Showing <strong>{{ people.length }}</strong> of <strong>{{ totalCount }}</strong> records</span>
+         </div>
+         <div class="pagination-controls">
+           <button 
+             @click="previousPage" 
+             class="btn btn-pagination"
+             :disabled="currentPage === 1 || loading"
+           >
+             ← Previous
+           </button>
+           <div class="page-size-selector">
+             <label>Page Size:</label>
+             <select v-model.number="pageSize" @change="resetAndLoad" :disabled="loading">
+               <option value="10">10</option>
+               <option value="20">20</option>
+               <option value="50">50</option>
+               <option value="100">100</option>
+             </select>
+           </div>
+           <button 
+             @click="nextPage" 
+             class="btn btn-pagination"
+             :disabled="currentPage >= totalPages || loading"
+           >
+             Next →
+           </button>
+         </div>
+       </div>
     </div>
     <div v-else class="empty-state">
       <p>No data. Click Load All or Search.</p>
@@ -73,34 +104,75 @@ export default {
       searchType: "",
       loading: false,
       error: null,
+      currentPage: 1,
+      pageSize: 20,
+      totalCount: 0,
+      isSearchActive: false,
     };
   },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.totalCount / this.pageSize) || 1;
+    },
+  },
   methods: {
-    async handleLoadAll() {
+    async loadPeopleData() {
       this.loading = true;
       this.error = null;
       try {
-        this.people = await peopleService.getAll();
+        let response;
+        if (this.isSearchActive) {
+          // Apply search with current filters and pagination
+          response = await peopleService.searchWithPagination(
+            this.searchName || null,
+            this.searchType || null,
+            this.currentPage,
+            this.pageSize
+          );
+        } else {
+          // Load all with pagination
+          response = await peopleService.getAllWithPagination(this.currentPage, this.pageSize);
+        }
+        this.people = response.items;
+        this.totalCount = response.totalCount;
       } catch (err) {
         this.error = `Error loading people: ${err.message}`;
+        this.people = [];
+        this.totalCount = 0;
       } finally {
         this.loading = false;
       }
     },
+    async handleLoadAll() {
+      this.isSearchActive = false;
+      this.currentPage = 1;
+      await this.loadPeopleData();
+    },
     async handleSearch() {
-      this.loading = true;
-      this.error = null;
-      try {
-        // Use search method which handles different endpoint combinations intelligently
-        this.people = await peopleService.search(
-          this.searchName || null,
-          this.searchType || null
-        );
-      } catch (err) {
-        this.error = `Error searching people: ${err.message}`;
-      } finally {
-        this.loading = false;
+      this.isSearchActive = true;
+      this.currentPage = 1;
+      await this.loadPeopleData();
+    },
+    async nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        await this.loadPeopleData();
+        this.scrollToTop();
       }
+    },
+    async previousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        await this.loadPeopleData();
+        this.scrollToTop();
+      }
+    },
+    async resetAndLoad() {
+      this.currentPage = 1;
+      await this.loadPeopleData();
+    },
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
   },
 };
@@ -212,5 +284,73 @@ h2 {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.pagination-info {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.info-text {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+.separator {
+  color: #ccc;
+}
+.pagination-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.btn-pagination {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  background: #3498db;
+  color: white;
+  transition: background 0.3s ease;
+}
+.btn-pagination:hover:not(:disabled) {
+  background: #2980b9;
+}
+.btn-pagination:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.page-size-selector label {
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+}
+.page-size-selector select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.page-size-selector select:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 </style>
