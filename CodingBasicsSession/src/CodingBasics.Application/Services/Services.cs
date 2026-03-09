@@ -1,0 +1,63 @@
+using CodingBasics.Domain.Contracts;
+
+namespace CodingBasics.Application.Services;
+
+/// <summary>
+/// Person service implementation.
+/// TODO (Workshop): Inject IPersonRepository via constructor and implement full CRUD methods.
+/// </summary>
+public sealed class PersonService : IPersonService
+{
+    private readonly IPersonRepository _repository;
+
+    public PersonService(IPersonRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default)
+    {
+        return await _repository.GetAllAsync(ct);
+    }
+
+    public Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
+        => _repository.SearchAsync(name, personType, ct);
+
+    public Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default)
+        => _repository.CreateAsync(dto, ct);
+
+    public Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default)
+        => _repository.UpdateAsync(id, dto, ct);
+
+    public Task DeleteAsync(int id, CancellationToken ct = default)
+        => _repository.DeleteAsync(id, ct);
+}
+
+/// <summary>
+/// Product service implementation.
+/// TODO (Workshop): Inject IProductRepository via constructor and implement methods.
+/// </summary>
+public sealed class ProductService : IProductService
+{
+    private readonly IProductRepository _repository;
+
+    public ProductService(IProductRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default)
+        => _repository.GetAllAsync(ct);
+
+    public Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+        => _repository.SearchAsync(name, categoryName, ct);
+
+    public Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default)
+        => _repository.CreateAsync(dto, ct);
+
+    public Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default)
+        => _repository.UpdateAsync(id, dto, ct);
+
+    public Task DeleteAsync(int id, CancellationToken ct = default)
+        => _repository.DeleteAsync(id, ct);
+}
