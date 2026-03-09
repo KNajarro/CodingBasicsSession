@@ -125,6 +125,16 @@ public sealed class PersonRepository : IPersonRepository
         _context.People.Remove(entity);
         await _context.SaveChangesAsync(ct);
     }
+
+    public async Task<IEnumerable<string>> GetPersonTypesAsync(CancellationToken ct = default)
+    {
+        return await _context.People
+            .Where(p => !string.IsNullOrEmpty(p.PersonType))
+            .Select(p => p.PersonType)
+            .Distinct()
+            .OrderBy(t => t)
+            .ToListAsync(ct);
+    }
 }
 
 public sealed class ProductRepository : IProductRepository
@@ -231,5 +241,15 @@ public sealed class ProductRepository : IProductRepository
 
         _context.Products.Remove(entity);
         await _context.SaveChangesAsync(ct);
+    }
+
+    public async Task<IEnumerable<string>> GetProductCategoriesAsync(CancellationToken ct = default)
+    {
+        return await _context.ProductCategories
+            .Where(c => !string.IsNullOrEmpty(c.Name))
+            .Select(c => c.Name)
+            .Distinct()
+            .OrderBy(n => n)
+            .ToListAsync(ct);
     }
 }

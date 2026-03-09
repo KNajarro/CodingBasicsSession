@@ -14,6 +14,7 @@ public interface IPersonService
     Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
     Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
     Task DeleteAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<string>> GetPersonTypesAsync(CancellationToken ct = default);
 }
 
 /// <summary>
@@ -27,6 +28,7 @@ public interface IProductService
     Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
     Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default);
     Task DeleteAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<string>> GetProductCategoriesAsync(CancellationToken ct = default);
 }
 
 /// <summary>
@@ -41,6 +43,7 @@ public interface IPersonRepository
     Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
     Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default);
     Task DeleteAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<string>> GetPersonTypesAsync(CancellationToken ct = default);
 }
 
 /// <summary>
@@ -56,4 +59,5 @@ public interface IProductRepository
     Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
     Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default);
     Task DeleteAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<string>> GetProductCategoriesAsync(CancellationToken ct = default);
 }

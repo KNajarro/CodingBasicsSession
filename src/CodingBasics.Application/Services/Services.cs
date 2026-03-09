@@ -45,6 +45,11 @@ public sealed class PersonService : IPersonService
         await _repository.DeleteAsync(id, ct);
     }
 
+    public async Task<IEnumerable<string>> GetPersonTypesAsync(CancellationToken ct = default)
+    {
+        return await _repository.GetPersonTypesAsync(ct);
+    }
+
     private static void ValidatePersonDto(PersonDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.FirstName))
@@ -97,6 +102,11 @@ public sealed class ProductService : IProductService
     public async Task DeleteAsync(int id, CancellationToken ct = default)
     {
         await _repository.DeleteAsync(id, ct);
+    }
+
+    public async Task<IEnumerable<string>> GetProductCategoriesAsync(CancellationToken ct = default)
+    {
+        return await _repository.GetProductCategoriesAsync(ct);
     }
 
     private static void ValidateProductDto(ProductDto dto)

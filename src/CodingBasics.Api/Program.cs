@@ -43,6 +43,16 @@ app.MapGet("/api/people", async (
 .WithName("GetAllPeople")
 .WithTags("People");
 
+app.MapGet("/api/people/types", async (
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var result = await service.GetPersonTypesAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("GetPersonTypes")
+.WithTags("People");
+
 app.MapGet("/api/people/search", async (
     [FromQuery] string? name,
     [FromQuery] string? personType,
@@ -144,6 +154,16 @@ app.MapGet("/api/products", async (
     return Results.Ok(new { page, pageSize, totalCount, items });
 })
 .WithName("GetAllProducts")
+.WithTags("Products");
+
+app.MapGet("/api/products/categories", async (
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.GetProductCategoriesAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("GetProductCategories")
 .WithTags("Products");
 
 app.MapGet("/api/products/search", async (
