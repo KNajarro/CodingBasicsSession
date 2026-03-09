@@ -51,3 +51,37 @@ public sealed class ProductService : IProductService
         return _repository.SearchAsync(name, categoryName, ct);
     }
 }
+
+//Agregado para el funcionamiento del Dashboard//
+/// <summary>
+/// Dashboard service implementation.
+/// </summary>
+public sealed class DashboardService : IDashboardService
+{
+    private readonly IDashboardRepository _repository;
+
+    public DashboardService(IDashboardRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public Task<decimal> GetInventoryValueAsync(CancellationToken ct = default)
+    {
+        return _repository.GetInventoryValueAsync(ct);
+    }
+
+    public Task<IEnumerable<object>> GetProductsByColorAsync(CancellationToken ct = default)
+    {
+        return _repository.GetProductsByColorAsync(ct);
+    }
+
+    public Task<IEnumerable<object>> GetPeopleByTypeAsync(CancellationToken ct = default)
+    {
+        return _repository.GetPeopleByTypeAsync(ct);
+    }
+
+    public Task<IEnumerable<object>> GetLowStockProductsAsync(CancellationToken ct = default)
+    {
+        return _repository.GetLowStockProductsAsync(ct);
+    }
+}

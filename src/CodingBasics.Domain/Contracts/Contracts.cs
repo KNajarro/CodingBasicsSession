@@ -57,3 +57,26 @@ public interface IProductRepository
     // TODO: Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default);
     // TODO: Task DeleteAsync(int id, CancellationToken ct = default);
 }
+
+//Agregado para el funcionamiento del Dashboard//
+/// <summary>
+/// Service contract for Dashboard operations.
+/// </summary>
+public interface IDashboardService
+{
+    Task<decimal> GetInventoryValueAsync(CancellationToken ct = default);
+    Task<IEnumerable<object>> GetProductsByColorAsync(CancellationToken ct = default);
+    Task<IEnumerable<object>> GetPeopleByTypeAsync(CancellationToken ct = default);
+    Task<IEnumerable<object>> GetLowStockProductsAsync(CancellationToken ct = default);
+}
+
+/// <summary>
+/// Repository contract for Dashboard queries.
+/// </summary>
+public interface IDashboardRepository
+{
+    Task<decimal> GetInventoryValueAsync(CancellationToken ct = default);
+    Task<IEnumerable<object>> GetProductsByColorAsync(CancellationToken ct = default);
+    Task<IEnumerable<object>> GetPeopleByTypeAsync(CancellationToken ct = default);
+    Task<IEnumerable<object>> GetLowStockProductsAsync(CancellationToken ct = default);
+}

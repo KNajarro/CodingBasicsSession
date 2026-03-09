@@ -136,3 +136,62 @@ public sealed class ProductRepository : IProductRepository
         return await query.ToListAsync(ct);
     }
 }
+
+//Agregado para el funcionamiento del Dashboard//
+/// <summary>
+/// Dashboard repository implementation using EF Core.
+/// Provides aggregated data for the dashboard.
+/// </summary>
+public sealed class DashboardRepository : IDashboardRepository
+{
+    private readonly AdventureWorksDbContext _context;
+
+    public DashboardRepository(AdventureWorksDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<decimal> GetInventoryValueAsync(CancellationToken ct = default)
+    {
+        return await _context.Products
+            .SumAsync(p => p.ListPrice, ct);
+    }
+
+    public async Task<IEnumerable<object>> GetProductsByColorAsync(CancellationToken ct = default)
+    {
+        return await _context.Products
+            .Where(p => p.Color != null)
+            .GroupBy(p => p.Color)
+            .Select(g => new
+            {
+                Color = g.Key,
+                Count = g.Count()
+            })
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<object>> GetPeopleByTypeAsync(CancellationToken ct = default)
+    {
+        return await _context.People
+            .GroupBy(p => p.PersonType)
+            .Select(g => new
+            {
+                PersonType = g.Key,
+                Count = g.Count()
+            })
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<object>> GetLowStockProductsAsync(CancellationToken ct = default)
+    {
+        return await _context.Products
+            .Where(p => p.SafetyStockLevel < 50)
+            .Select(p => new
+            {
+                p.Name,
+                p.ProductNumber,
+                p.SafetyStockLevel
+            })
+            .ToListAsync(ct);
+    }
+}

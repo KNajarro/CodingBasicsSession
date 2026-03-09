@@ -11,6 +11,9 @@ public static class DependencyInjection
         services.AddScoped<IPersonService, PersonService>();
         services.AddScoped<IProductService, ProductService>();
 
+        //Agregado para el funcionamiento del Dashboard//
+        services.AddScoped<IDashboardService, DashboardService>();
+
         return services;
     }
 }

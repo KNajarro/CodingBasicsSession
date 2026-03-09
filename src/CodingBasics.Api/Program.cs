@@ -109,4 +109,41 @@ app.MapGet("/api/products/search", async (
 .WithName("SearchProducts")
 .WithTags("Products");
 
+//Agregado para el funcionamiento del Dashboard//
+app.MapGet("/api/dashboard/inventory-value",
+async (IDashboardService service, CancellationToken ct) =>
+{
+    var result = await service.GetInventoryValueAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("Inventory")
+.WithTags("Dashboard");
+
+app.MapGet("/api/dashboard/products-by-color",
+async (IDashboardService service, CancellationToken ct) =>
+{
+    var result = await service.GetProductsByColorAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("ProductsByColor")
+.WithTags("Dashboard");
+
+app.MapGet("/api/dashboard/people-by-type",
+async (IDashboardService service, CancellationToken ct) =>
+{
+    var result = await service.GetPeopleByTypeAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("PeopleByType")
+.WithTags("Dashboard");
+
+app.MapGet("/api/dashboard/low-stock",
+async (IDashboardService service, CancellationToken ct) =>
+{
+    var result = await service.GetLowStockProductsAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("LowSafetySotckLevel")
+.WithTags("Dashboard");
+
 app.Run();
