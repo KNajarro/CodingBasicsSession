@@ -61,6 +61,20 @@ public sealed class ProductDto
     public decimal ListPrice { get; set; }
 
     /// <summary>
+    /// Minimum stock level before reordering is required.
+    /// Used to identify products that need restocking.
+    /// Example: 25
+    /// </summary>
+    public short SafetyStockLevel { get; set; }
+
+    /// <summary>
+    /// Reorder point quantity.
+    /// The quantity at which a new purchase order should be placed.
+    /// Example: 50
+    /// </summary>
+    public short ReorderPoint { get; set; }
+
+    /// <summary>
     /// Category name from Production.ProductCategory (via ProductSubcategory join).
     /// Examples: "Bikes", "Components", "Clothing", "Accessories"
     /// </summary>

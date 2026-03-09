@@ -141,6 +141,8 @@ public sealed class ProductRepository : IProductRepository
                           ProductNumber   = p.ProductNumber,
                           Color           = p.Color,
                           ListPrice       = p.ListPrice,
+                          SafetyStockLevel = p.SafetyStockLevel,
+                          ReorderPoint    = p.ReorderPoint,
                           CategoryName    = c != null ? c.Name : null,
                           SubcategoryName = sc != null ? sc.Name : null
                       }).ToListAsync(ct);
@@ -162,6 +164,8 @@ public sealed class ProductRepository : IProductRepository
                          ProductNumber   = p.ProductNumber,
                          Color           = p.Color,
                          ListPrice       = p.ListPrice,
+                         SafetyStockLevel = p.SafetyStockLevel,
+                         ReorderPoint    = p.ReorderPoint,
                          CategoryName    = c != null ? c.Name : null,
                          SubcategoryName = sc != null ? sc.Name : null
                      }).AsQueryable();

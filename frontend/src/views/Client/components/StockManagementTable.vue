@@ -1,20 +1,57 @@
 <template>
   <div class="stock-management">
+    <!-- Header with Title and Stats -->
     <div class="stock-header">
       <h3 class="section-title">Stock Management</h3>
       <div class="stock-stats">
-        <span class="stat-badge">{{ products.length }} products</span>
+        <span class="stat-badge">{{ filteredProducts.length }} products</span>
         <span class="stat-badge warning">Below SafetyStockLevel</span>
       </div>
     </div>
 
-    <div v-if="products.length === 0" class="empty-stock">
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <div class="filter-group">
+        <label>Search by Product Name:</label>
+        <input
+          type="text"
+          v-model="searchNameInput"
+          placeholder="Search product name..."
+          class="filter-input"
+          @keyup.enter="handleSearch"
+        />
+      </div>
+      <div class="filter-group">
+        <label>Filter by Status:</label>
+        <select v-model="filterStatus" class="filter-select">
+          <option value="">All Status</option>
+          <option value="critical">Critical</option>
+          <option value="warning">Warning</option>
+          <option value="adequate">Adequate</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Min Stock Level:</label>
+        <input
+          type="number"
+          v-model.number="filterMinStock"
+          placeholder="Min level..."
+          class="filter-input"
+        />
+      </div>
+      <button @click="handleSearch" class="btn btn-primary filter-btn">Search</button>
+      <button @click="clearFilters" class="btn btn-secondary filter-btn">Clear</button>
+    </div>
+
+    <!-- Empty State -->
+    <div v-if="filteredProducts.length === 0" class="empty-stock">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 12h6m-6 4h6m2-9H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2z"></path>
       </svg>
-      <p>All products are adequately stocked!</p>
+      <p>{{ allProductsAdequatelyStocked ? 'All products are adequately stocked!' : 'No products match your filters.' }}</p>
     </div>
 
+    <!-- Table Section -->
     <div v-else class="table-wrapper">
       <table class="stock-table">
         <thead>
@@ -28,7 +65,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in products" :key="product.productID" :class="getRowClass(product)">
+          <tr v-for="product in paginatedProducts" :key="product.productID" :class="getRowClass(product)">
             <td class="id-cell">{{ product.productID }}</td>
             <td class="name-cell">
               <div class="product-name">{{ product.name }}</div>
@@ -47,9 +84,44 @@
       </table>
     </div>
 
-    <div v-if="products.length > 0" class="stock-footer">
+    <!-- Pagination Section -->
+    <div v-if="filteredProducts.length > 0" class="pagination-info">
+      <div class="info-text">
+        <span>Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong></span>
+        <span class="separator">•</span>
+        <span>Showing <strong>{{ paginatedProducts.length }}</strong> of <strong>{{ filteredProducts.length }}</strong> records</span>
+      </div>
+      <div class="pagination-controls">
+        <button 
+          @click="previousPage" 
+          class="btn btn-pagination"
+          :disabled="currentPage === 1"
+        >
+          ← Previous
+        </button>
+        <div class="page-size-selector">
+          <label>Page Size:</label>
+          <select v-model.number="pageSize" @change="resetPage">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <button 
+          @click="nextPage" 
+          class="btn btn-pagination"
+          :disabled="currentPage >= totalPages"
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+
+    <!-- Alert Section -->
+    <div v-if="filteredProducts.length > 0" class="stock-footer">
       <p class="footer-text">
-        <strong>Alert:</strong> {{ products.length }} product(s) have safety stock levels below 100 units.
+        <strong>Alert:</strong> {{ filteredProducts.length }} product(s) have safety stock levels below 100 units.
         Consider restocking to avoid supply disruptions.
       </p>
     </div>
@@ -64,6 +136,62 @@ export default {
       type: Array,
       required: true,
       default: () => []
+    }
+  },
+  data() {
+    return {
+      currentPage: 1,
+      pageSize: 20,
+      searchNameInput: '', // Input field for search (not applied until button click)
+      searchName: '', // Actual search term used for filtering
+      filterStatus: '',
+      filterMinStock: null
+    }
+  },
+  computed: {
+    filteredProducts() {
+      let filtered = this.products.filter(product => {
+        const stockLevel = product.safetyStockLevel || 0
+        
+        // FIRST: Only show products with safetyStockLevel < 100 (core requirement)
+        if (stockLevel >= 100) {
+          return false
+        }
+        
+        // Filter by name search (applied only when search button clicked)
+        if (this.searchName && !product.name.toLowerCase().includes(this.searchName.toLowerCase())) {
+          return false
+        }
+        
+        // Filter by status
+        if (this.filterStatus) {
+          const status = this.getStatusKey(product)
+          if (status !== this.filterStatus) {
+            return false
+          }
+        }
+        
+        // Filter by minimum stock level
+        if (this.filterMinStock !== null && this.filterMinStock !== '' && stockLevel < this.filterMinStock) {
+          return false
+        }
+        
+        return true
+      })
+      
+      // Sort by safety stock level ascending
+      return filtered.sort((a, b) => (a.safetyStockLevel || 0) - (b.safetyStockLevel || 0))
+    },
+    totalPages() {
+      return Math.ceil(this.filteredProducts.length / this.pageSize) || 1
+    },
+    paginatedProducts() {
+      const start = (this.currentPage - 1) * this.pageSize
+      const end = start + this.pageSize
+      return this.filteredProducts.slice(start, end)
+    },
+    allProductsAdequatelyStocked() {
+      return this.products.length === 0
     }
   },
   methods: {
@@ -93,6 +221,37 @@ export default {
       if (stockLevel < 25) return 'Critical'
       if (stockLevel < 50) return 'Warning'
       return 'Adequate'
+    },
+    getStatusKey(product) {
+      const stockLevel = product.safetyStockLevel || 0
+      if (stockLevel === 0 || stockLevel < 25) return 'critical'
+      if (stockLevel < 50) return 'warning'
+      return 'adequate'
+    },
+    handleSearch() {
+      // Apply the search term only when button is clicked
+      this.searchName = this.searchNameInput
+      this.currentPage = 1 // Reset to first page
+    },
+    previousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++
+      }
+    },
+    resetPage() {
+      this.currentPage = 1
+    },
+    clearFilters() {
+      this.searchNameInput = ''
+      this.searchName = ''
+      this.filterStatus = ''
+      this.filterMinStock = null
+      this.currentPage = 1
     }
   }
 }
@@ -141,6 +300,51 @@ export default {
   color: #c00;
 }
 
+/* Filters Section */
+.filters-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filter-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.filter-input,
+.filter-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-width: 150px;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.filter-btn {
+  margin-top: 0.4rem;
+}
+
+/* Empty State */
 .empty-stock {
   text-align: center;
   padding: 3rem 2rem;
@@ -161,10 +365,12 @@ export default {
   font-size: 1.1rem;
 }
 
+/* Table */
 .table-wrapper {
   overflow-x: auto;
   border-radius: 8px;
   background: white;
+  margin-bottom: 1rem;
 }
 
 .stock-table {
@@ -311,8 +517,108 @@ export default {
   text-transform: uppercase;
 }
 
+/* Pagination */
+.pagination-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.info-text {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.separator {
+  color: #ccc;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.page-size-selector {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.page-size-selector label {
+  color: #555;
+  font-weight: 500;
+}
+
+.page-size-selector select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+  border-color: #2980b9;
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+  border-color: #95a5a6;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+  border-color: #7f8c8d;
+}
+
+.btn-pagination {
+  background: white;
+  color: #2c3e50;
+  border-color: #dee2e6;
+}
+
+.btn-pagination:hover:not(:disabled) {
+  background: #ecf0f1;
+  border-color: #3498db;
+}
+
+.btn-pagination:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Alert Section */
 .stock-footer {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding: 1rem;
   background: #fff3cd;
   border-left: 4px solid #ffa500;
@@ -325,6 +631,38 @@ export default {
   color: #856404;
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    flex: 1;
+  }
+
+  .filter-input,
+  .filter-select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .filter-btn {
+    width: 100%;
+  }
+
+  .pagination-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 768px) {
   .stock-header {
     flex-direction: column;
@@ -335,6 +673,10 @@ export default {
   .stock-stats {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .filters-section {
+    padding: 0.75rem;
   }
 
   .stock-table {
@@ -352,6 +694,25 @@ export default {
 
   .product-number {
     display: none;
+  }
+
+  .pagination-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .page-size-selector {
+    width: 100%;
+  }
+
+  .btn-pagination {
+    width: 100%;
   }
 }
 </style>

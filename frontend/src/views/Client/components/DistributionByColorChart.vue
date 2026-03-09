@@ -1,11 +1,12 @@
 <template>
   <div class="chart-container">
-    <h3 class="chart-title">Distribution by Color</h3>
+    <h3 class="chart-title">Product Distribution by Color</h3>
+    <p class="chart-subtitle">Product count grouped by color</p>
     <div class="chart-wrapper">
       <Doughnut :data="data" :options="options" />
     </div>
     <div class="chart-legend">
-      <p class="legend-info">Total {{ data.datasets[0].data.length }} colors identified</p>
+      <p class="legend-info">Total <strong>{{ data.datasets[0].data.reduce((a,b) => a+b, 0) }}</strong> products across <strong>{{ data.datasets[0].data.length }}</strong> color(s)</p>
     </div>
   </div>
 </template>
@@ -67,12 +68,18 @@ export default {
 }
 
 .chart-title {
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.5rem 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: #2c3e50;
   border-bottom: 2px solid #3498db;
   padding-bottom: 0.5rem;
+}
+
+.chart-subtitle {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: #7f8c8d;
 }
 
 .chart-wrapper {

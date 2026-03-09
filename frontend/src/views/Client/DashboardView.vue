@@ -1,9 +1,6 @@
 <template>
   <div class="dashboard-view">
-    <div class="dashboard-header">
-      <h1>Dashboard</h1>
-      <p class="subtitle">Business Intelligence & Analytics</p>
-    </div>
+    <h2>Dashboard</h2>
 
     <div v-if="error" class="error-message">{{ error }}</div>
     
@@ -112,14 +109,23 @@ export default {
         'General Contact'
       ]
 
+      const colors = [
+        '#3498db', // Store Contact - Blue
+        '#e74c3c', // Individual - Red
+        '#2ecc71', // Sales Person - Green
+        '#f39c12', // Employee - Orange
+        '#9b59b6', // Vendor Contact - Purple
+        '#1abc9c'  // General Contact - Teal
+      ]
+
       return {
         labels,
         datasets: [
           {
             label: 'Number of People',
             data: Object.values(typeMap),
-            backgroundColor: '#3498db',
-            borderColor: '#2980b9',
+            backgroundColor: colors,
+            borderColor: colors,
             borderWidth: 1
           }
         ]
@@ -127,25 +133,50 @@ export default {
     })
 
     const lowStockProducts = computed(() => {
+      // Return all products - let StockManagementTable handle filtering for better UX
       return products.value
-        .filter(product => {
-          const safetyStock = product.safetyStockLevel || 0
-          return safetyStock < 100
-        })
-        .sort((a, b) => (a.safetyStockLevel || 0) - (b.safetyStockLevel || 0))
     })
 
     const loadDashboardData = async () => {
       loading.value = true
       error.value = null
       try {
-        // Load all products (with large page size)
-        const productsResponse = await productsService.getAllWithPagination(1, 500)
-        products.value = productsResponse.items || []
+        // Load all products by fetching all pages
+        let allProducts = []
+        let currentPage = 1
+        let hasMore = true
+        const pageSize = 500
 
-        // Load all people (with large page size)
-        const peopleResponse = await peopleService.getAllWithPagination(1, 500)
-        people.value = peopleResponse.items || []
+        while (hasMore) {
+          const response = await productsService.getAllWithPagination(currentPage, pageSize)
+          allProducts = allProducts.concat(response.items || [])
+          
+          // Check if we've loaded all items
+          if (allProducts.length >= response.totalCount) {
+            hasMore = false
+          } else {
+            currentPage++
+          }
+        }
+        products.value = allProducts
+
+        // Load all people by fetching all pages
+        let allPeople = []
+        currentPage = 1
+        hasMore = true
+
+        while (hasMore) {
+          const response = await peopleService.getAllWithPagination(currentPage, pageSize)
+          allPeople = allPeople.concat(response.items || [])
+          
+          // Check if we've loaded all items
+          if (allPeople.length >= response.totalCount) {
+            hasMore = false
+          } else {
+            currentPage++
+          }
+        }
+        people.value = allPeople
       } catch (err) {
         error.value = `Error loading dashboard data: ${err.message}`
         console.error('Dashboard error:', err)
@@ -188,25 +219,9 @@ export default {
   padding: 0;
 }
 
-.dashboard-header {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  color: white;
-  padding: 2rem;
-  margin: -2rem -2rem 2rem -2rem;
-  border-bottom: 3px solid #3498db;
-}
-
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-.subtitle {
-  margin: 0.5rem 0 0 0;
-  font-size: 1.1rem;
-  opacity: 0.9;
-  font-weight: 300;
+.dashboard-view h2 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
 }
 
 .error-message {
