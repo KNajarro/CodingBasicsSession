@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/CodingBasics.Api/CodingBasics.Api.csproj" />
-    <Project Path="src/CodingBasics.Application/CodingBasics.Application.csproj" />
-    <Project Path="src/CodingBasics.Domain/CodingBasics.Domain.csproj" />
-    <Project Path="src/CodingBasics.Infrastructure/CodingBasics.Infrastructure.csproj" />
-  </Folder>
-</Solution>
