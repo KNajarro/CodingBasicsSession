@@ -27,7 +27,7 @@
 
       <!-- Stock Management Section -->
       <div class="stock-section">
-        <StockManagementTable :products="lowStockProducts" />
+        <StockManagementTable :products="products" />
       </div>
     </div>
   </div>
@@ -132,50 +132,60 @@ export default {
       }
     })
 
-    const lowStockProducts = computed(() => {
-      // Return all products - let StockManagementTable handle filtering for better UX
-      return products.value
-    })
-
     const loadDashboardData = async () => {
       loading.value = true
       error.value = null
       try {
-        // Load all products by fetching all pages
+        // Load all products by fetching all pages with a large page size
         let allProducts = []
         let currentPage = 1
-        let hasMore = true
-        const pageSize = 500
+        let hasMoreProducts = true
+        const pageSize = 5000
 
-        while (hasMore) {
+        while (hasMoreProducts) {
           const response = await productsService.getAllWithPagination(currentPage, pageSize)
-          allProducts = allProducts.concat(response.items || [])
+          const pageItems = response.items || []
           
-          // Check if we've loaded all items
-          if (allProducts.length >= response.totalCount) {
-            hasMore = false
+          if (pageItems.length === 0) {
+            hasMoreProducts = false
           } else {
-            currentPage++
+            allProducts = allProducts.concat(pageItems)
+            
+            // Check if we've retrieved all items
+            // If items received < pageSize, we've reached the end
+            if (pageItems.length < pageSize) {
+              hasMoreProducts = false
+            } else {
+              currentPage++
+            }
           }
         }
+        
         products.value = allProducts
 
-        // Load all people by fetching all pages
+        // Load all people by fetching all pages with a large page size
         let allPeople = []
         currentPage = 1
-        hasMore = true
+        let hasMorePeople = true
 
-        while (hasMore) {
+        while (hasMorePeople) {
           const response = await peopleService.getAllWithPagination(currentPage, pageSize)
-          allPeople = allPeople.concat(response.items || [])
+          const pageItems = response.items || []
           
-          // Check if we've loaded all items
-          if (allPeople.length >= response.totalCount) {
-            hasMore = false
+          if (pageItems.length === 0) {
+            hasMorePeople = false
           } else {
-            currentPage++
+            allPeople = allPeople.concat(pageItems)
+            
+            // Check if we've retrieved all items
+            if (pageItems.length < pageSize) {
+              hasMorePeople = false
+            } else {
+              currentPage++
+            }
           }
         }
+        
         people.value = allPeople
       } catch (err) {
         error.value = `Error loading dashboard data: ${err.message}`
@@ -205,10 +215,10 @@ export default {
     return {
       loading,
       error,
+      products,
       inventoryValue,
       colorDistributionData,
-      personTypeData,
-      lowStockProducts
+      personTypeData
     }
   }
 }

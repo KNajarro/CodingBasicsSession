@@ -59,7 +59,6 @@
             <th>Product ID</th>
             <th>Product Name</th>
             <th>Safety Stock Level</th>
-            <th>Reorder Point</th>
             <th>List Price</th>
             <th>Status</th>
           </tr>
@@ -74,7 +73,6 @@
             <td class="stock-level">
               <span class="badge">{{ product.safetyStockLevel || 0 }}</span>
             </td>
-            <td class="reorder-point">{{ product.reorderPoint || '-' }}</td>
             <td class="price">{{ formatPrice(product.listPrice) }}</td>
             <td class="status">
               <span :class="getStatusClass(product)">{{ getStatusText(product) }}</span>
@@ -152,11 +150,6 @@ export default {
     filteredProducts() {
       let filtered = this.products.filter(product => {
         const stockLevel = product.safetyStockLevel || 0
-        
-        // FIRST: Only show products with safetyStockLevel < 100 (core requirement)
-        if (stockLevel >= 100) {
-          return false
-        }
         
         // Filter by name search (applied only when search button clicked)
         if (this.searchName && !product.name.toLowerCase().includes(this.searchName.toLowerCase())) {

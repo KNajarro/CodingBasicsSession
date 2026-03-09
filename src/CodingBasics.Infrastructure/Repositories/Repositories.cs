@@ -136,39 +136,39 @@ public sealed class ProductRepository : IProductRepository
                       from c in cGroup.DefaultIfEmpty()
                       select new ProductDto
                       {
-                          ProductID       = p.ProductID,
-                          Name            = p.Name,
-                          ProductNumber   = p.ProductNumber,
-                          Color           = p.Color,
-                          ListPrice       = p.ListPrice,
+                          ProductID        = p.ProductID,
+                          Name             = p.Name,
+                          ProductNumber    = p.ProductNumber,
+                          Color            = p.Color,
+                          ListPrice        = p.ListPrice,
                           SafetyStockLevel = p.SafetyStockLevel,
-                          ReorderPoint    = p.ReorderPoint,
-                          CategoryName    = c != null ? c.Name : null,
-                          SubcategoryName = sc != null ? sc.Name : null
+                          ReorderPoint     = p.ReorderPoint,
+                          CategoryName     = c != null ? c.Name : null,
+                          SubcategoryName  = sc != null ? sc.Name : null
                       }).ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
-    {
-        var query = (from p in _context.Products
-                     join sc in _context.ProductSubcategories
-                         on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
-                     from sc in scGroup.DefaultIfEmpty()
-                     join c in _context.ProductCategories
-                         on sc.ProductCategoryID equals c.ProductCategoryID into cGroup
-                     from c in cGroup.DefaultIfEmpty()
-                     select new ProductDto
-                     {
-                         ProductID       = p.ProductID,
-                         Name            = p.Name,
-                         ProductNumber   = p.ProductNumber,
-                         Color           = p.Color,
-                         ListPrice       = p.ListPrice,
-                         SafetyStockLevel = p.SafetyStockLevel,
-                         ReorderPoint    = p.ReorderPoint,
-                         CategoryName    = c != null ? c.Name : null,
-                         SubcategoryName = sc != null ? sc.Name : null
-                     }).AsQueryable();
+     public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
+     {
+         var query = (from p in _context.Products
+                      join sc in _context.ProductSubcategories
+                          on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
+                      from sc in scGroup.DefaultIfEmpty()
+                      join c in _context.ProductCategories
+                          on sc.ProductCategoryID equals c.ProductCategoryID into cGroup
+                      from c in cGroup.DefaultIfEmpty()
+                      select new ProductDto
+                      {
+                          ProductID        = p.ProductID,
+                          Name             = p.Name,
+                          ProductNumber    = p.ProductNumber,
+                          Color            = p.Color,
+                          ListPrice        = p.ListPrice,
+                          SafetyStockLevel = p.SafetyStockLevel,
+                          ReorderPoint     = p.ReorderPoint,
+                          CategoryName     = c != null ? c.Name : null,
+                          SubcategoryName  = sc != null ? sc.Name : null
+                      }).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(name))
             query = query.Where(p => p.Name.Contains(name));
