@@ -1,12 +1,7 @@
 <template>
   <div id="app">
     <nav class="navbar">
-      <div class="navbar-brand"><h1>AdventureWorks Workshop</h1></div>
-      <div class="navbar-menu">
-        <router-link to="/" class="nav-link">Home</router-link>
-        <router-link to="/people" class="nav-link">People</router-link>
-        <router-link to="/products" class="nav-link">Products</router-link>
-      </div>
+      <div class="navbar-brand"><h1>AdventureWorks Dashboard</h1></div>
     </nav>
     <main class="container">
       <router-view />

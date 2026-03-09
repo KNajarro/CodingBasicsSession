@@ -1,45 +1,31 @@
 import api from './api'
 
 /**
- * Products Service
- * TODO (Workshop): Implement full CRUD methods to call the .NET API.
+ * Products Service — centraliza las peticiones al backend de Products.
+ * La API devuelve { page, pageSize, totalCount, items } en getAll.
+ * GET /api/products/categories devuelve un array de nombres de categoría.
+ * GET /api/products/search devuelve un array de ProductDto.
  */
 export const productsService = {
-  /** GET /api/products - returns all ProductDto records */
-  async getAll() {
-    // TODO: const response = await api.get('/products')
-    //       return response.data
-    throw new Error('Workshop: Implement getAll()')
+  /** GET /api/products — devuelve { page, pageSize, totalCount, items } */
+  async getAll(page = 1, pageSize = 20) {
+    const { data } = await api.get('/products', { params: { page, pageSize } })
+    return data
   },
 
-  /** GET /api/products/search?name=&categoryName= */
+  /** GET /api/products/categories — devuelve array de categorías para el combobox */
+  async getCategories() {
+    const { data } = await api.get('/products/categories')
+    return data
+  },
+
+  /** GET /api/products/search?name=&categoryName= — devuelve array de productos */
   async search(name, categoryName) {
-    // TODO: const params = {}
-    //       if (name)         params.name         = name
-    //       if (categoryName) params.categoryName = categoryName
-    //       const response = await api.get('/products/search', { params })
-    //       return response.data
-    throw new Error('Workshop: Implement search()')
-  },
-
-  /** POST /api/products - create a new product */
-  async create(product) {
-    // TODO: const response = await api.post('/products', product)
-    //       return response.data
-    throw new Error('Workshop: Implement create()')
-  },
-
-  /** PUT /api/products/{id} - update a product */
-  async update(id, product) {
-    // TODO: const response = await api.put(`/products/${id}`, product)
-    //       return response.data
-    throw new Error('Workshop: Implement update()')
-  },
-
-  /** DELETE /api/products/{id} - delete a product */
-  async delete(id) {
-    // TODO: await api.delete(`/products/${id}`)
-    throw new Error('Workshop: Implement delete()')
+    const params = {}
+    if (name != null && name !== '') params.name = name
+    if (categoryName != null && categoryName !== '') params.categoryName = categoryName
+    const { data } = await api.get('/products/search', { params })
+    return data
   }
 }
 

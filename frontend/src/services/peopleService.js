@@ -1,45 +1,31 @@
 import api from './api'
 
 /**
- * People Service
- * TODO (Workshop): Implement full CRUD methods to call the .NET API.
+ * People Service — centraliza las peticiones al backend de People.
+ * La API devuelve { page, pageSize, totalCount, items } en getAll.
+ * GET /api/people/types devuelve un array de strings.
+ * GET /api/people/search devuelve un array de PersonDto.
  */
 export const peopleService = {
-  /** GET /api/people - returns all PersonDto records */
-  async getAll() {
-    // TODO: const response = await api.get('/people')
-    //       return response.data
-    throw new Error('Workshop: Implement getAll()')
+  /** GET /api/people — devuelve { page, pageSize, totalCount, items } */
+  async getAll(page = 1, pageSize = 20) {
+    const { data } = await api.get('/people', { params: { page, pageSize } })
+    return data
   },
 
-  /** GET /api/people/search?name=&personType= */
+  /** GET /api/people/types — devuelve array de tipos para el combobox */
+  async getTypes() {
+    const { data } = await api.get('/people/types')
+    return data
+  },
+
+  /** GET /api/people/search?name=&personType= — devuelve array de personas */
   async search(name, personType) {
-    // TODO: const params = {}
-    //       if (name)       params.name       = name
-    //       if (personType) params.personType = personType
-    //       const response = await api.get('/people/search', { params })
-    //       return response.data
-    throw new Error('Workshop: Implement search()')
-  },
-
-  /** POST /api/people - create a new person */
-  async create(person) {
-    // TODO: const response = await api.post('/people', person)
-    //       return response.data
-    throw new Error('Workshop: Implement create()')
-  },
-
-  /** PUT /api/people/{id} - update a person */
-  async update(id, person) {
-    // TODO: const response = await api.put(`/people/${id}`, person)
-    //       return response.data
-    throw new Error('Workshop: Implement update()')
-  },
-
-  /** DELETE /api/people/{id} - delete a person */
-  async delete(id) {
-    // TODO: await api.delete(`/people/${id}`)
-    throw new Error('Workshop: Implement delete()')
+    const params = {}
+    if (name != null && name !== '') params.name = name
+    if (personType != null && personType !== '') params.personType = personType
+    const { data } = await api.get('/people/search', { params })
+    return data
   }
 }
 
