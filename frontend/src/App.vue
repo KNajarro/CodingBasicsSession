@@ -4,6 +4,7 @@
       <div class="navbar-brand"><h1>AdventureWorks Workshop</h1></div>
       <div class="navbar-menu">
         <router-link to="/" class="nav-link">Home</router-link>
+        <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
         <router-link to="/people" class="nav-link">People</router-link>
         <router-link to="/products" class="nav-link">Products</router-link>
       </div>
