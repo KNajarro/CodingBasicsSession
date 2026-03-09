@@ -13,13 +13,26 @@
     <div class="filters-section">
       <div class="filter-group">
         <label>Search by Product Name:</label>
-        <input
-          type="text"
-          v-model="searchNameInput"
-          placeholder="Search product name..."
-          class="filter-input"
-          @keyup.enter="handleSearch"
-        />
+        <input type="text" v-model="searchNameInput" placeholder="Search product name..." class="filter-input"
+          @keyup.enter="handleSearch" />
+      </div>
+      <div class="filter-group">
+        <label>Filter by Category:</label>
+        <select v-model="filterCategory" class="filter-select">
+          <option value="">All Categories</option>
+          <option v-for="category in uniqueCategories" :key="category" :value="category">
+            {{ category }}
+          </option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Filter by Subcategory:</label>
+        <select v-model="filterSubcategory" class="filter-select">
+          <option value="">All Subcategories</option>
+          <option v-for="subcategory in filteredSubcategories" :key="subcategory" :value="subcategory">
+            {{ subcategory }}
+          </option>
+        </select>
       </div>
       <div class="filter-group">
         <label>Filter by Status:</label>
@@ -32,12 +45,8 @@
       </div>
       <div class="filter-group">
         <label>Min Stock Level:</label>
-        <input
-          type="number"
-          v-model.number="filterMinStock"
-          placeholder="Min level..."
-          class="filter-input"
-        />
+        <input type="number" v-model.number="filterMinStock" placeholder="Min..."
+          class="filter-input filter-input-small" />
       </div>
       <button @click="handleSearch" class="btn btn-primary filter-btn">Search</button>
       <button @click="clearFilters" class="btn btn-secondary filter-btn">Clear</button>
@@ -48,7 +57,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 12h6m-6 4h6m2-9H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2z"></path>
       </svg>
-      <p>{{ allProductsAdequatelyStocked ? 'All products are adequately stocked!' : 'No products match your filters.' }}</p>
+      <p>{{ allProductsAdequatelyStocked ? 'All products are adequately stocked!' : 'No products match your filters.' }}
+      </p>
     </div>
 
     <!-- Table Section -->
@@ -56,11 +66,37 @@
       <table class="stock-table">
         <thead>
           <tr>
-            <th>Product ID</th>
-            <th>Product Name</th>
-            <th>Safety Stock Level</th>
-            <th>List Price</th>
-            <th>Status</th>
+            <th @click="sortBy('productID')" class="sortable">
+              Product ID
+              <span v-if="sortKey === 'productID'" class="sort-indicator">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th @click="sortBy('name')" class="sortable">
+              Product Name
+              <span v-if="sortKey === 'name'" class="sort-indicator">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th @click="sortBy('categoryName')" class="sortable">
+              Category
+              <span v-if="sortKey === 'categoryName'" class="sort-indicator">{{ sortOrder === 'asc' ? '▲' : '▼'
+                }}</span>
+            </th>
+            <th @click="sortBy('subcategoryName')" class="sortable">
+              Subcategory
+              <span v-if="sortKey === 'subcategoryName'" class="sort-indicator">{{ sortOrder === 'asc' ? '▲' : '▼'
+                }}</span>
+            </th>
+            <th @click="sortBy('safetyStockLevel')" class="sortable">
+              Safety Stock Level
+              <span v-if="sortKey === 'safetyStockLevel'" class="sort-indicator">{{ sortOrder === 'asc' ? '▲' : '▼'
+                }}</span>
+            </th>
+            <th @click="sortBy('listPrice')" class="sortable">
+              List Price
+              <span v-if="sortKey === 'listPrice'" class="sort-indicator">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th @click="sortBy('status')" class="sortable">
+              Status
+              <span v-if="sortKey === 'status'" class="sort-indicator">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -70,9 +106,9 @@
               <div class="product-name">{{ product.name }}</div>
               <div class="product-number">{{ product.productNumber }}</div>
             </td>
-            <td class="stock-level">
-              <span class="badge">{{ product.safetyStockLevel || 0 }}</span>
-            </td>
+            <td class="category-cell">{{ product.categoryName || '-' }}</td>
+            <td class="subcategory-cell">{{ product.subcategoryName || '-' }}</td>
+            <td class="stock-level">{{ product.safetyStockLevel || 0 }}</td>
             <td class="price">{{ formatPrice(product.listPrice) }}</td>
             <td class="status">
               <span :class="getStatusClass(product)">{{ getStatusText(product) }}</span>
@@ -87,14 +123,11 @@
       <div class="info-text">
         <span>Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong></span>
         <span class="separator">•</span>
-        <span>Showing <strong>{{ paginatedProducts.length }}</strong> of <strong>{{ filteredProducts.length }}</strong> records</span>
+        <span>Showing <strong>{{ paginatedProducts.length }}</strong> of <strong>{{ filteredProducts.length }}</strong>
+          records</span>
       </div>
       <div class="pagination-controls">
-        <button 
-          @click="previousPage" 
-          class="btn btn-pagination"
-          :disabled="currentPage === 1"
-        >
+        <button @click="previousPage" class="btn btn-pagination" :disabled="currentPage === 1">
           ← Previous
         </button>
         <div class="page-size-selector">
@@ -106,11 +139,7 @@
             <option value="100">100</option>
           </select>
         </div>
-        <button 
-          @click="nextPage" 
-          class="btn btn-pagination"
-          :disabled="currentPage >= totalPages"
-        >
+        <button @click="nextPage" class="btn btn-pagination" :disabled="currentPage >= totalPages">
           Next →
         </button>
       </div>
@@ -119,7 +148,7 @@
     <!-- Alert Section -->
     <div v-if="filteredProducts.length > 0" class="stock-footer">
       <p class="footer-text">
-        <strong>Alert:</strong> {{ filteredProducts.length }} product(s) have safety stock levels below 100 units.
+        <strong>Alert:</strong> {{ lowStockCount }} product(s) have safety stock levels below 100 units.
         Consider restocking to avoid supply disruptions.
       </p>
     </div>
@@ -142,20 +171,57 @@ export default {
       pageSize: 20,
       searchNameInput: '', // Input field for search (not applied until button click)
       searchName: '', // Actual search term used for filtering
+      filterCategory: '',
+      filterSubcategory: '',
       filterStatus: '',
-      filterMinStock: null
+      filterMinStock: null,
+      sortKey: 'safetyStockLevel', // Default sort by stock level
+      sortOrder: 'asc' // asc or desc
     }
   },
   computed: {
+    uniqueCategories() {
+      const categories = new Set()
+      this.products.forEach(product => {
+        if (product.categoryName) {
+          categories.add(product.categoryName)
+        }
+      })
+      return Array.from(categories).sort()
+    },
+
+    filteredSubcategories() {
+      const subcategories = new Set()
+      this.products.forEach(product => {
+        // Only include subcategories that match selected category (if any)
+        if (!this.filterCategory || product.categoryName === this.filterCategory) {
+          if (product.subcategoryName) {
+            subcategories.add(product.subcategoryName)
+          }
+        }
+      })
+      return Array.from(subcategories).sort()
+    },
+
     filteredProducts() {
       let filtered = this.products.filter(product => {
         const stockLevel = product.safetyStockLevel || 0
-        
+
         // Filter by name search (applied only when search button clicked)
         if (this.searchName && !product.name.toLowerCase().includes(this.searchName.toLowerCase())) {
           return false
         }
-        
+
+        // Filter by category
+        if (this.filterCategory && product.categoryName !== this.filterCategory) {
+          return false
+        }
+
+        // Filter by subcategory
+        if (this.filterSubcategory && product.subcategoryName !== this.filterSubcategory) {
+          return false
+        }
+
         // Filter by status
         if (this.filterStatus) {
           const status = this.getStatusKey(product)
@@ -163,26 +229,52 @@ export default {
             return false
           }
         }
-        
+
         // Filter by minimum stock level
         if (this.filterMinStock !== null && this.filterMinStock !== '' && stockLevel < this.filterMinStock) {
           return false
         }
-        
+
         return true
       })
-      
-      // Sort by safety stock level ascending
-      return filtered.sort((a, b) => (a.safetyStockLevel || 0) - (b.safetyStockLevel || 0))
+
+      // Sort by selected key
+      return filtered.sort((a, b) => {
+        let aValue = a[this.sortKey]
+        let bValue = b[this.sortKey]
+
+        // Handle null/undefined values
+        if (aValue === null || aValue === undefined) aValue = ''
+        if (bValue === null || bValue === undefined) bValue = ''
+
+        // Compare values
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase()
+          bValue = bValue.toLowerCase()
+          return this.sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+        } else {
+          return this.sortOrder === 'asc' ? aValue - bValue : bValue - aValue
+        }
+      })
     },
+
     totalPages() {
       return Math.ceil(this.filteredProducts.length / this.pageSize) || 1
     },
+
     paginatedProducts() {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       return this.filteredProducts.slice(start, end)
     },
+
+    lowStockCount() {
+      return this.filteredProducts.filter(product => {
+        const stockLevel = product.safetyStockLevel || 0
+        return stockLevel < 100
+      }).length
+    },
+
     allProductsAdequatelyStocked() {
       return this.products.length === 0
     }
@@ -239,11 +331,27 @@ export default {
     resetPage() {
       this.currentPage = 1
     },
+    sortBy(key) {
+      // If clicking the same header, toggle sort order
+      if (this.sortKey === key) {
+        this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
+      } else {
+        // If clicking a different header, set to ascending and reset to first page
+        this.sortKey = key
+        this.sortOrder = 'asc'
+      }
+      // Always go to first page when sorting
+      this.currentPage = 1
+    },
     clearFilters() {
       this.searchNameInput = ''
       this.searchName = ''
+      this.filterCategory = ''
+      this.filterSubcategory = ''
       this.filterStatus = ''
       this.filterMinStock = null
+      this.sortKey = 'safetyStockLevel'
+      this.sortOrder = 'asc'
       this.currentPage = 1
     }
   }
@@ -333,6 +441,11 @@ export default {
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
+.filter-input-small {
+  min-width: 145px !important;
+  width: 145px;
+}
+
 .filter-btn {
   margin-top: 0.4rem;
 }
@@ -386,6 +499,22 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
+}
+
+.stock-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.stock-table th.sortable:hover {
+  background-color: #ecf0f1;
+}
+
+.sort-indicator {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  display: inline-block;
 }
 
 .stock-table td {
@@ -448,7 +577,7 @@ export default {
 }
 
 .stock-level {
-  text-align: center;
+  text-align: left;
 }
 
 .badge {
@@ -461,20 +590,28 @@ export default {
   font-size: 0.9rem;
 }
 
+.category-cell {
+  text-align: left;
+}
+
+.subcategory-cell {
+  text-align: left;
+}
+
 .reorder-point {
-  text-align: center;
+  text-align: left;
   color: #999;
 }
 
 .price {
   font-weight: 600;
   color: #27ae60;
-  text-align: right;
+  text-align: left;
   min-width: 100px;
 }
 
 .status {
-  text-align: center;
+  text-align: left;
 }
 
 .status-critical {

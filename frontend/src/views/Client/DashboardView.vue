@@ -3,7 +3,7 @@
     <h2>Dashboard</h2>
 
     <div v-if="error" class="error-message">{{ error }}</div>
-    
+
     <div v-if="loading" class="loading-spinner">
       <div class="spinner"></div>
       <p>Loading dashboard data...</p>
@@ -64,7 +64,7 @@ export default {
 
     const colorDistributionData = computed(() => {
       const colorMap = {}
-      
+
       products.value.forEach(product => {
         const color = product.color || 'No Color'
         colorMap[color] = (colorMap[color] || 0) + 1
@@ -145,12 +145,12 @@ export default {
         while (hasMoreProducts) {
           const response = await productsService.getAllWithPagination(currentPage, pageSize)
           const pageItems = response.items || []
-          
+
           if (pageItems.length === 0) {
             hasMoreProducts = false
           } else {
             allProducts = allProducts.concat(pageItems)
-            
+
             // Check if we've retrieved all items
             // If items received < pageSize, we've reached the end
             if (pageItems.length < pageSize) {
@@ -160,7 +160,7 @@ export default {
             }
           }
         }
-        
+
         products.value = allProducts
 
         // Load all people by fetching all pages with a large page size
@@ -171,12 +171,12 @@ export default {
         while (hasMorePeople) {
           const response = await peopleService.getAllWithPagination(currentPage, pageSize)
           const pageItems = response.items || []
-          
+
           if (pageItems.length === 0) {
             hasMorePeople = false
           } else {
             allPeople = allPeople.concat(pageItems)
-            
+
             // Check if we've retrieved all items
             if (pageItems.length < pageSize) {
               hasMorePeople = false
@@ -185,7 +185,7 @@ export default {
             }
           }
         }
-        
+
         people.value = allPeople
       } catch (err) {
         error.value = `Error loading dashboard data: ${err.message}`
@@ -263,8 +263,13 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .dashboard-content {
