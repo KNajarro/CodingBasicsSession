@@ -50,6 +50,11 @@ public sealed class PersonService : IPersonService
         return await _repository.GetPersonTypesAsync(ct);
     }
 
+    public async Task<IEnumerable<PersonTypeCountDto>> GetPersonTypeDistributionAsync(CancellationToken ct = default)
+    {
+        return await _repository.GetPersonTypeDistributionAsync(ct);
+    }
+
     private static void ValidatePersonDto(PersonDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.FirstName))
@@ -107,6 +112,22 @@ public sealed class ProductService : IProductService
     public async Task<IEnumerable<string>> GetProductCategoriesAsync(CancellationToken ct = default)
     {
         return await _repository.GetProductCategoriesAsync(ct);
+    }
+
+    public async Task<decimal> GetInventoryValueAsync(CancellationToken ct = default)
+    {
+        return await _repository.GetInventoryValueAsync(ct);
+    }
+
+    public async Task<IEnumerable<ColorCountDto>> GetColorDistributionAsync(CancellationToken ct = default)
+    {
+        return await _repository.GetColorDistributionAsync(ct);
+    }
+
+    public async Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, short threshold, CancellationToken ct = default)
+    {
+        if (page < 1) page = 1;
+        return await _repository.GetLowStockAsync(page, threshold, ct);
     }
 
     private static void ValidateProductDto(ProductDto dto)

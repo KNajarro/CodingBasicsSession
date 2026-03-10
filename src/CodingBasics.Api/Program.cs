@@ -248,4 +248,51 @@ app.MapDelete("/api/products/{id:int}", async (
 .WithName("DeleteProduct")
 .WithTags("Products");
 
+// ============================================
+// DASHBOARD ENDPOINTS
+// ============================================
+
+app.MapGet("/api/dashboard/inventory-value", async (
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var value = await service.GetInventoryValueAsync(ct);
+    return Results.Ok(new { totalInventoryValue = value });
+})
+.WithName("GetInventoryValue")
+.WithTags("Dashboard");
+
+app.MapGet("/api/dashboard/color-distribution", async (
+    [FromServices] IProductService service,
+    CancellationToken ct) =>
+{
+    var result = await service.GetColorDistributionAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("GetColorDistribution")
+.WithTags("Dashboard");
+
+app.MapGet("/api/dashboard/customer-analysis", async (
+    [FromServices] IPersonService service,
+    CancellationToken ct) =>
+{
+    var result = await service.GetPersonTypeDistributionAsync(ct);
+    return Results.Ok(result);
+})
+.WithName("GetCustomerAnalysis")
+.WithTags("Dashboard");
+
+app.MapGet("/api/dashboard/low-stock", async (
+    [FromServices] IProductService service,
+    CancellationToken ct,
+    [FromQuery] int page = 1,
+    [FromQuery] short threshold = 100) =>
+{
+    if (page < 1) page = 1;
+    var result = await service.GetLowStockAsync(page, threshold, ct);
+    return Results.Ok(result);
+})
+.WithName("GetLowStockProducts")
+.WithTags("Dashboard");
+
 app.Run();

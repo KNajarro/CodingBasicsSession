@@ -135,6 +135,16 @@ public sealed class PersonRepository : IPersonRepository
             .OrderBy(t => t)
             .ToListAsync(ct);
     }
+
+    public async Task<IEnumerable<PersonTypeCountDto>> GetPersonTypeDistributionAsync(CancellationToken ct = default)
+    {
+        return await _context.People
+            .Where(p => !string.IsNullOrEmpty(p.PersonType))
+            .GroupBy(p => p.PersonType)
+            .Select(g => new PersonTypeCountDto { PersonType = g.Key, Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .ToListAsync(ct);
+    }
 }
 
 public sealed class ProductRepository : IProductRepository
@@ -251,5 +261,57 @@ public sealed class ProductRepository : IProductRepository
             .Distinct()
             .OrderBy(n => n)
             .ToListAsync(ct);
+    }
+
+    public async Task<decimal> GetInventoryValueAsync(CancellationToken ct = default)
+    {
+        return await _context.Products.SumAsync(p => p.ListPrice, ct);
+    }
+
+    public async Task<IEnumerable<ColorCountDto>> GetColorDistributionAsync(CancellationToken ct = default)
+    {
+        return await _context.Products
+            .Where(p => !string.IsNullOrEmpty(p.Color))
+            .GroupBy(p => p.Color!)
+            .Select(g => new ColorCountDto { Color = g.Key, Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .ToListAsync(ct);
+    }
+
+    public async Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, short threshold, CancellationToken ct = default)
+    {
+        const int pageSize = 20;
+
+        var query = from p in _context.Products
+                    join sc in _context.ProductSubcategories
+                        on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
+                    from sc in scGroup.DefaultIfEmpty()
+                    join c in _context.ProductCategories
+                        on sc.ProductCategoryID equals c.ProductCategoryID into cGroup
+                    from c in cGroup.DefaultIfEmpty()
+                    where p.SafetyStockLevel <= threshold
+                    orderby p.SafetyStockLevel
+                    select new LowStockProductDto
+                    {
+                        ProductID        = p.ProductID,
+                        Name             = p.Name,
+                        ProductNumber    = p.ProductNumber,
+                        Color            = p.Color,
+                        ListPrice        = p.ListPrice,
+                        SafetyStockLevel = p.SafetyStockLevel,
+                        ReorderPoint     = p.ReorderPoint,
+                        CategoryName     = c != null ? c.Name : null
+                    };
+
+        var totalCount = await query.CountAsync(ct);
+        var items      = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+
+        return new PagedResult<LowStockProductDto>
+        {
+            Page       = page,
+            PageSize   = pageSize,
+            TotalCount = totalCount,
+            Items      = items
+        };
     }
 }
