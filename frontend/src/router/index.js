@@ -3,6 +3,7 @@ import HomeView     from '../views/HomeView.vue'
 import PeopleView   from '../views/PeopleView.vue'
 import ProductsView from '../views/ProductsView.vue'
 
+
 const routes = [
   { path: '/',         name: 'home',     component: HomeView     },
   { path: '/people',   name: 'people',   component: PeopleView   },

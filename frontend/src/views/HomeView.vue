@@ -1,49 +1,76 @@
 <template>
-  <div class="home">
-    <h2>Welcome to AdventureWorks Workshop</h2>
-    <div class="info-cards">
-      <div class="card">
-        <h3>Workshop Goals</h3>
-        <ul>
-          <li>Connect Vue frontend to .NET API</li>
-          <li>Implement service methods with Axios</li>
-          <li>Display data in tables</li>
-          <li>Add search functionality</li>
-        </ul>
+  <div class="dashboard p-6">
+    <h1 class="text-2xl font-bold mb-6">Business Dashboard</h1>
+
+    <div class="card mb-8 p-6 bg-white shadow rounded-lg border-t-4 border-green-500">
+      <h3 class="text-gray-500 text-sm font-semibold uppercase">Total Inventory Value</h3>
+      <p class="text-4xl font-bold">${{ totalInventoryValue.toLocaleString() }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div class="bg-white p-4 shadow rounded-lg">
+        <h3 class="text-center font-bold mb-4">Product Distribution by Color</h3>
+        <Doughnut v-if="loaded" :data="colorChartData" />
       </div>
-      <div class="card">
-        <h3>API Endpoints</h3>
-        <ul>
-          <li><code>GET /api/people</code></li>
-          <li><code>GET /api/people/search?name=&amp;personType=</code></li>
-          <li><code>GET /api/products</code></li>
-          <li><code>GET /api/products/search?name=&amp;categoryName=</code></li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Person Types</h3>
-        <ul>
-          <li><strong>SC</strong>  -  Store Contact</li>
-          <li><strong>IN</strong>  -  Individual</li>
-          <li><strong>SP</strong>  -  Sales Person</li>
-          <li><strong>EM</strong>  -  Employee</li>
-          <li><strong>VC</strong>  -  Vendor Contact</li>
-          <li><strong>GC</strong>  -  General Contact</li>
-        </ul>
+
+      <div class="bg-white p-4 shadow rounded-lg">
+        <h3 class="text-center font-bold mb-4">Customer Analysis (Person Type)</h3>
+        <Bar v-if="loaded" :data="peopleChartData" />
       </div>
     </div>
   </div>
 </template>
-<script>
-export default { name: 'HomeView' }
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { getProducts } from '../services/productsService';
+import { getPeople } from '../services/peopleService';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js';
+import { Bar, Doughnut } from 'vue-chartjs';
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement);
+
+const loaded = ref(false);
+const totalInventoryValue = ref(0);
+const colorChartData = ref(null);
+const peopleChartData = ref(null);
+
+onMounted(async () => {
+  try {
+    const [prodRes, peopleRes] = await Promise.all([getProducts(), getPeople()]);
+    const products = prodRes.data;
+    const people = peopleRes.data;
+
+    // Logic 1: Sum ListPrice
+    totalInventoryValue.value = products.reduce((acc, p) => acc + (p.listPrice || 0), 0);
+
+    // Logic 2: Count per Color
+    const colors = products.reduce((acc, p) => {
+      const c = p.color || 'N/A';
+      acc[c] = (acc[c] || 0) + 1;
+      return acc;
+    }, {});
+
+    colorChartData.value = {
+      labels: Object.keys(colors),
+      datasets: [{ backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'], data: Object.values(colors) }]
+    };
+
+    // Logic 3: Group by Person Type
+    const types = people.reduce((acc, p) => {
+      const t = p.personType || 'Unknown';
+      acc[t] = (acc[t] || 0) + 1;
+      return acc;
+    }, {});
+
+    peopleChartData.value = {
+      labels: Object.keys(types),
+      datasets: [{ label: 'Quantity', backgroundColor: '#3498db', data: Object.values(types) }]
+    };
+
+    loaded.value = true;
+  } catch (error) {
+    console.error("Dashboard Load Error:", error);
+  }
+});
 </script>
-<style scoped>
-.home h2 { margin-bottom: 2rem; color: #2c3e50; }
-.info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-.card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,.1); }
-.card h3 { color: #2c3e50; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid #3498db; }
-.card ul { list-style: none; padding: 0; }
-.card li { padding: .5rem 0; border-bottom: 1px solid #eee; }
-.card li:last-child { border-bottom: none; }
-code { background: #f4f4f4; padding: .2rem .5rem; border-radius: 4px; font-size: .9rem; }
-</style>

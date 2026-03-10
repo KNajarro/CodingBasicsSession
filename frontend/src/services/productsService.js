@@ -1,5 +1,5 @@
 import api from './api'
-
+export const getProducts = () => api.get('/products');
 /**
  * Products Service
  Implement full CRUD methods to call the .NET API.

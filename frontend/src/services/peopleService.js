@@ -1,5 +1,5 @@
 import api from './api'
-
+export const getPeople = () => api.get('/people');
 /**
  * People Service
    Implement full CRUD methods to call the .NET API.
