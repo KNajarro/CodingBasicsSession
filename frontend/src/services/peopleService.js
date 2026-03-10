@@ -12,6 +12,21 @@ export const peopleService = {
         return response.data
   },
 
+  /** Return a mapping of personType -> count */
+  async groupByPersonType() {
+  const people = await this.getAll()
+  console.log(people)
+
+  const grouped = people.items.reduce((acc, p) => {
+    acc[p.personType] = (acc[p.personType] || 0) + 1
+    return acc
+  }, {})
+
+  return Object.entries(grouped).map(([personType, total]) => ({
+    personType,
+    total
+  }))
+},
   /** GET /api/people/search?name=&personType= */
   async search(name, personType) {
            const params = {}

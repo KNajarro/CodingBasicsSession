@@ -39,7 +39,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- TODO (Workshop): Replace placeholder with v-for loop
           <tr v-for="product in products" :key="product.productID">
             <td>{{ product.productID }}</td>
             <td>{{ product.name }}</td>
@@ -49,7 +48,7 @@
             <td>{{ product.categoryName || '-' }}</td>
             <td>{{ product.subcategoryName || '-' }}</td>
           </tr>
-          -->
+          
           <tr>
             <td colspan="7" class="placeholder">
               Workshop: Implement v-for rows
@@ -85,13 +84,36 @@ export default {
         currency: "USD",
       }).format(p);
     },
-    async handleLoadAll() {
-      // TODO: implement  -  see PeopleView for pattern
-      this.error = "Workshop: Implement handleLoadAll()";
+    handleLoadAll() {
+      this.loading = true, this.error = null;
+      productsService
+        .getAll()
+        .then((response) => {
+          this.products = response;
+          console.log(response);
+        })
+        .catch((err) => {
+          console.error(err);
+          this.error = "Failed to load products.";
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
     async handleSearch() {
-      // TODO: implement  -  see PeopleView for pattern
-      this.error = "Workshop: Implement handleSearch()";
+      this.loading = true, this.error = null;
+        productsService
+          .search(this.searchName, this.searchCategory)
+          .then((response) => {
+            this.products = response;
+          })
+          .catch((err) => {
+            console.error(err);
+            this.error = "Search failed.";
+          })
+          .finally(() => {
+            this.loading = false;
+          });
     },
   },
 };
