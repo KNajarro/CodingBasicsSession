@@ -207,14 +207,27 @@ public sealed class ProductRepository : IProductRepository
 
     public async Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default)
     {
+        var now = DateTime.UtcNow;
+        var productNumber = string.IsNullOrWhiteSpace(dto.ProductNumber)
+            ? $"WS-{Guid.NewGuid():N}"[..12]
+            : dto.ProductNumber;
+
         var entity = new Domain.AdventureWorks.Entities.Product
         {
-            Name = dto.Name,
-            ProductNumber = dto.ProductNumber,
+            Name = string.IsNullOrWhiteSpace(dto.Name) ? "Workshop Product" : dto.Name,
+            ProductNumber = productNumber,
             Color = dto.Color,
             ListPrice = dto.ListPrice,
             ProductSubcategoryID = null, // TODO: Map from SubcategoryName if provided
-            ModifiedDate = DateTime.UtcNow
+            MakeFlag = false,
+            FinishedGoodsFlag = false,
+            SafetyStockLevel = 1,
+            ReorderPoint = 1,
+            StandardCost = 0,
+            DaysToManufacture = 0,
+            SellStartDate = now,
+            rowguid = Guid.NewGuid(),
+            ModifiedDate = now
         };
 
         _context.Products.Add(entity);
