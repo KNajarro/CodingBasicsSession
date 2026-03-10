@@ -1,0 +1,6 @@
+@CodingBasics.Api_HostAddress = http://localhost:5261
+
+GET {{CodingBasics.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

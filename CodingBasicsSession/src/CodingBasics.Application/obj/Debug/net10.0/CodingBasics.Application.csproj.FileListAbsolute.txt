@@ -1,0 +1,16 @@
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/bin/Debug/net10.0/CodingBasics.Application.deps.json
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/bin/Debug/net10.0/CodingBasics.Application.dll
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/bin/Debug/net10.0/CodingBasics.Application.pdb
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/bin/Debug/net10.0/CodingBasics.Domain.dll
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/bin/Debug/net10.0/CodingBasics.Domain.pdb
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.csproj.AssemblyReference.cache
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.AssemblyInfoInputs.cache
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.AssemblyInfo.cs
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.csproj.CoreCompileInputs.cache
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.sourcelink.json
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBa.C1141754.Up2Date
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.dll
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/refint/CodingBasics.Application.dll
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/CodingBasics.Application.pdb
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Application/obj/Debug/net10.0/ref/CodingBasics.Application.dll

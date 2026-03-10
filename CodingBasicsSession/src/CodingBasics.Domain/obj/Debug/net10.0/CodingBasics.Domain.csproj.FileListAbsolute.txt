@@ -1,0 +1,12 @@
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/bin/Debug/net10.0/CodingBasics.Domain.deps.json
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/bin/Debug/net10.0/CodingBasics.Domain.dll
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/bin/Debug/net10.0/CodingBasics.Domain.pdb
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/CodingBasics.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/CodingBasics.Domain.AssemblyInfoInputs.cache
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/CodingBasics.Domain.AssemblyInfo.cs
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/CodingBasics.Domain.csproj.CoreCompileInputs.cache
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/CodingBasics.Domain.sourcelink.json
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/CodingBasics.Domain.dll
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/refint/CodingBasics.Domain.dll
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/CodingBasics.Domain.pdb
+/Users/robertolopez/Documents/RSM/CodingBasicsSession/src/CodingBasics.Domain/obj/Debug/net10.0/ref/CodingBasics.Domain.dll
