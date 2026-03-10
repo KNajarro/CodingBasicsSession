@@ -4,8 +4,8 @@
 
     <section>
       <h2>Person Filter</h2>
-      <input v-model="filterPerson.name" placeholder="Buscar por nombre">
-      <input v-model="filterPerson.type" placeholder="Buscar por tipo (ej: EM, SP)">
+      <input v-model="filterPerson.name" placeholder="Search by Name">
+      <input v-model="filterPerson.type" placeholder="Search by Type">
       <button @click="fetchPersons">Filter</button>
 
       <ul>
@@ -19,7 +19,7 @@
 
     <section>
       <h2>Product Filter</h2>
-      <input v-model="filterProduct.name" placeholder="Nombre del producto">
+      <input v-model="filterProduct.name" placeholder="Product Name">
       <button @click="fetchProducts">Filter</button>
 
       <ul>
@@ -34,8 +34,10 @@
 <script setup>
 import { ref } from 'vue';
 
-// API URL 
-const API_URL = "https://localhost:5261/api";  // The port reflected locally is 5261 , change it accordly
+const API_URL = "http://localhost:5261/api";
+
+// 1. IMPORTANTE: Declarar loading
+const loading = ref(false); 
 
 const persons = ref([]);
 const filterPerson = ref({ name: '', type: '' });
@@ -43,13 +45,12 @@ const filterPerson = ref({ name: '', type: '' });
 const products = ref([]);
 const filterProduct = ref({ name: '' });
 
-// Lógica para Personas
 const fetchPersons = async () => {
-  loading.value = true; // Recomendado para feedback visual
+  loading.value = true;
   
+  // 2. URL base corregida, 
   let url = `${API_URL}/people`; 
 
-  
   if (filterPerson.value.name || filterPerson.value.type) {
     const params = new URLSearchParams();
     if (filterPerson.value.name) params.append('name', filterPerson.value.name);
@@ -60,44 +61,48 @@ const fetchPersons = async () => {
 
   try {
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Error en la respuesta del servidor");
+    if (!response.ok) throw new Error("Server Error");
     
     const data = await response.json();
-
-   
-    if (data.items) {
-      persons.value = data.items; // Para el endpoint /api/people
-    } else {
-      persons.value = data; // Para el endpoint /api/people/search
-    }
+    
+    // 3. Validar si los datos vienen en .items o directo
+    persons.value = data.items ? data.items : data;
 
   } catch (error) {
-    console.error("Error al conectar con la API:", error);
+    console.error("Error:", error);
     persons.value = [];
   } finally {
     loading.value = false;
   }
 };
-
 // Lógica para Productos
+
 const fetchProducts = async () => {
   loading.value = true;
     
   let url = `${API_URL}/products`;
 
   if (filterProduct.value.name) {
-    // waiting for name parameter
+    const params=new URLSearchParams();
+    params.append('name',filterProduct.value.name);
     url = `${API_URL}/products/search?name=${encodeURIComponent(filterProduct.value.name)}`;
   }
 
   try {
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Error al obtener productos");
+    if (!response.ok) throw new Error("Error trying to obtain Products");
     
-    // returns an array
-    products.value = await response.json();
+    // This will be the complete array, no items involved
+    const data= await response.json();
+
+    //This way we ensure a response when whe have an array (data) or
+    //specific items data.items
+
+    products.value=data.items?data.items:data;
+
+
   } catch (error) {
-    console.error("Error en productos:", error);
+    console.error("Error in products:", error);
     products.value = [];
   } finally {
     loading.value = false;
