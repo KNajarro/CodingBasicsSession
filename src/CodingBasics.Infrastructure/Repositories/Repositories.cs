@@ -19,16 +19,17 @@ public sealed class PersonRepository : IPersonRepository
 
     public async Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default)
     {
-        // TODO (Workshop): Query all people and map to PersonDto
-        // Hint: Use _context.People.Select(...).ToListAsync(ct)
-
         return await _context.People
             .Select(p => new PersonDto
             {
                 BusinessEntityID = p.BusinessEntityID,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                PersonType = p.PersonType
+                PersonType       = p.PersonType,
+                Title            = p.Title,
+                FirstName        = p.FirstName,
+                MiddleName       = p.MiddleName,
+                LastName         = p.LastName,
+                Suffix           = p.Suffix,
+                EmailPromotion   = p.EmailPromotion
             })
             .ToListAsync(ct);
     }
@@ -64,9 +65,21 @@ public sealed class PersonRepository : IPersonRepository
 
     public async Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default)
     {
+        // Person.BusinessEntityID is a FK to Person.BusinessEntity (NOT IDENTITY on Person.Person).
+        // Insert a BusinessEntity row first so the DB generates the ID via its own IDENTITY column,
+        // then assign that ID to the new Person.
+        var businessEntity = new Domain.AdventureWorks.Entities.BusinessEntity
+        {
+            rowguid = Guid.NewGuid(),
+            ModifiedDate = DateTime.UtcNow
+        };
+
+        _context.BusinessEntities.Add(businessEntity);
+        await _context.SaveChangesAsync(ct);
+
         var entity = new Domain.AdventureWorks.Entities.Person
         {
-            BusinessEntityID = dto.BusinessEntityID,
+            BusinessEntityID = businessEntity.BusinessEntityID,
             PersonType = dto.PersonType,
             Title = dto.Title,
             FirstName = dto.FirstName,
@@ -88,33 +101,36 @@ public sealed class PersonRepository : IPersonRepository
 
     public async Task<PersonDto> UpdateAsync(int id, PersonDto dto, CancellationToken ct = default)
     {
-        var entity = await _context.People.FirstOrDefaultAsync(p => p.BusinessEntityID == id, ct);
-        if (entity is null)
-        {
+        // ExecuteUpdateAsync generates a direct SQL UPDATE with only the target columns.
+        // This avoids EF Core change-tracking loading the full Person row (which includes
+        // xml-typed columns AdditionalContactInfo / Demographics that can cause tracking
+        // comparison issues and trigger unexpected SET clauses).
+        var affected = await _context.People
+            .Where(p => p.BusinessEntityID == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.PersonType,     dto.PersonType)
+                .SetProperty(p => p.Title,           dto.Title)
+                .SetProperty(p => p.FirstName,       dto.FirstName)
+                .SetProperty(p => p.MiddleName,      dto.MiddleName)
+                .SetProperty(p => p.LastName,        dto.LastName)
+                .SetProperty(p => p.Suffix,          dto.Suffix)
+                .SetProperty(p => p.EmailPromotion,  dto.EmailPromotion)
+                .SetProperty(p => p.ModifiedDate,    DateTime.UtcNow),
+            ct);
+
+        if (affected == 0)
             throw new KeyNotFoundException($"Person with ID {id} was not found.");
-        }
-
-        entity.PersonType = dto.PersonType;
-        entity.Title = dto.Title;
-        entity.FirstName = dto.FirstName;
-        entity.MiddleName = dto.MiddleName;
-        entity.LastName = dto.LastName;
-        entity.Suffix = dto.Suffix;
-        entity.EmailPromotion = dto.EmailPromotion;
-        entity.ModifiedDate = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync(ct);
 
         return new PersonDto
         {
-            BusinessEntityID = entity.BusinessEntityID,
-            PersonType = entity.PersonType,
-            Title = entity.Title,
-            FirstName = entity.FirstName,
-            MiddleName = entity.MiddleName,
-            LastName = entity.LastName,
-            Suffix = entity.Suffix,
-            EmailPromotion = entity.EmailPromotion
+            BusinessEntityID = id,
+            PersonType       = dto.PersonType,
+            Title            = dto.Title,
+            FirstName        = dto.FirstName,
+            MiddleName       = dto.MiddleName,
+            LastName         = dto.LastName,
+            Suffix           = dto.Suffix,
+            EmailPromotion   = dto.EmailPromotion
         };
     }
 
@@ -239,19 +255,20 @@ public sealed class ProductRepository : IProductRepository
 
     public async Task<ProductDto> UpdateAsync(int id, ProductDto dto, CancellationToken ct = default)
     {
-        var entity = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == id, ct);
-        if (entity is null)
-        {
+        var affected = await _context.Products
+            .Where(p => p.ProductID == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.Name,          dto.Name)
+                .SetProperty(p => p.ProductNumber,  dto.ProductNumber)
+                .SetProperty(p => p.Color,          dto.Color)
+                .SetProperty(p => p.ListPrice,      dto.ListPrice)
+                .SetProperty(p => p.ModifiedDate,   DateTime.UtcNow),
+            ct);
+
+        if (affected == 0)
             throw new KeyNotFoundException($"Product with ID {id} was not found.");
-        }
 
-        entity.Name = dto.Name;
-        entity.ProductNumber = dto.ProductNumber;
-        entity.Color = dto.Color;
-        entity.ListPrice = dto.ListPrice;
-        entity.ModifiedDate = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync(ct);
+        dto.ProductID = id;
         return dto;
     }
 

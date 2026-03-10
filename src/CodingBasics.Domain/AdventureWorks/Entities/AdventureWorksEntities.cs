@@ -1,6 +1,18 @@
 namespace CodingBasics.Domain.AdventureWorks.Entities;
 
 /// <summary>
+/// Maps to Person.BusinessEntity table in AdventureWorks database.
+/// Parent table for all business entities (People, Vendors, Stores).
+/// BusinessEntityID is IDENTITY here — Person.Person references it via FK.
+/// </summary>
+public sealed class BusinessEntity
+{
+    public int BusinessEntityID { get; set; }
+    public Guid rowguid { get; set; }
+    public DateTime ModifiedDate { get; set; }
+}
+
+/// <summary>
 /// Maps to Person.Person table in AdventureWorks database.
 /// Schema: Person | Primary Key: BusinessEntityID
 /// TODO (Workshop): Ensure entity supports full CRUD operations (Create, Read, Update, Delete)

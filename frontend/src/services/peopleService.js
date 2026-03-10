@@ -1,45 +1,31 @@
 import api from './api'
 
-/**
- * People Service
- * TODO (Workshop): Implement full CRUD methods to call the .NET API.
- */
 export const peopleService = {
-  /** GET /api/people - returns all PersonDto records */
-  async getAll() {
-    // TODO: const response = await api.get('/people')
-    //       return response.data
-    throw new Error('Workshop: Implement getAll()')
+  async getAll(page = 1, pageSize = 20) {
+    const res = await api.get('/people', { params: { page, pageSize } })
+    return res.data // { page, pageSize, totalCount, items }
   },
 
-  /** GET /api/people/search?name=&personType= */
   async search(name, personType) {
-    // TODO: const params = {}
-    //       if (name)       params.name       = name
-    //       if (personType) params.personType = personType
-    //       const response = await api.get('/people/search', { params })
-    //       return response.data
-    throw new Error('Workshop: Implement search()')
+    const params = {}
+    if (name)       params.name       = name
+    if (personType) params.personType = personType
+    const res = await api.get('/people/search', { params })
+    return res.data // PersonDto[]
   },
 
-  /** POST /api/people - create a new person */
   async create(person) {
-    // TODO: const response = await api.post('/people', person)
-    //       return response.data
-    throw new Error('Workshop: Implement create()')
+    const res = await api.post('/people', person)
+    return res.data
   },
 
-  /** PUT /api/people/{id} - update a person */
   async update(id, person) {
-    // TODO: const response = await api.put(`/people/${id}`, person)
-    //       return response.data
-    throw new Error('Workshop: Implement update()')
+    const res = await api.put(`/people/${id}`, person)
+    return res.data
   },
 
-  /** DELETE /api/people/{id} - delete a person */
   async delete(id) {
-    // TODO: await api.delete(`/people/${id}`)
-    throw new Error('Workshop: Implement delete()')
+    await api.delete(`/people/${id}`)
   }
 }
 
