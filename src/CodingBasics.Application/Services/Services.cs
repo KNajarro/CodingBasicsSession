@@ -18,6 +18,13 @@ public sealed class PersonService : IPersonService
         return await _repository.GetAllAsync(ct);
     }
 
+    public async Task<PagedResult<PersonDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+        return await _repository.GetPagedAsync(page, pageSize, ct);
+    }
+
     public async Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
     {
         return await _repository.SearchAsync(name, personType, ct);
@@ -82,6 +89,13 @@ public sealed class ProductService : IProductService
         return await _repository.GetAllAsync(ct);
     }
 
+    public async Task<PagedResult<ProductDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+        return await _repository.GetPagedAsync(page, pageSize, ct);
+    }
+
     public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
     {
         return await _repository.SearchAsync(name, categoryName, ct);
@@ -124,10 +138,11 @@ public sealed class ProductService : IProductService
         return await _repository.GetColorDistributionAsync(ct);
     }
 
-    public async Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, short threshold, CancellationToken ct = default)
+    public async Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, int pageSize, short threshold, CancellationToken ct = default)
     {
         if (page < 1) page = 1;
-        return await _repository.GetLowStockAsync(page, threshold, ct);
+        if (pageSize < 1) pageSize = 20;
+        return await _repository.GetLowStockAsync(page, pageSize, threshold, ct);
     }
 
     private static void ValidateProductDto(ProductDto dto)

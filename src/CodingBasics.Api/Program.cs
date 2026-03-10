@@ -33,12 +33,8 @@ app.MapGet("/api/people", async (
     [FromQuery] int pageSize = 20
 ) =>
 {
-    if (page < 1) page = 1;
-    if (pageSize < 1) pageSize = 20;
-    var all = await service.GetAllAsync(ct);
-    var totalCount = all.Count();
-    var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-    return Results.Ok(new { page, pageSize, totalCount, items });
+    var result = await service.GetPagedAsync(page, pageSize, ct);
+    return Results.Ok(result);
 })
 .WithName("GetAllPeople")
 .WithTags("People");
@@ -146,12 +142,8 @@ app.MapGet("/api/products", async (
     [FromQuery] int pageSize = 20
 ) =>
 {
-    if (page < 1) page = 1;
-    if (pageSize < 1) pageSize = 20;
-    var all = await service.GetAllAsync(ct);
-    var totalCount = all.Count();
-    var items = all.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-    return Results.Ok(new { page, pageSize, totalCount, items });
+    var result = await service.GetPagedAsync(page, pageSize, ct);
+    return Results.Ok(result);
 })
 .WithName("GetAllProducts")
 .WithTags("Products");
@@ -286,10 +278,10 @@ app.MapGet("/api/dashboard/low-stock", async (
     [FromServices] IProductService service,
     CancellationToken ct,
     [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20,
     [FromQuery] short threshold = 100) =>
 {
-    if (page < 1) page = 1;
-    var result = await service.GetLowStockAsync(page, threshold, ct);
+    var result = await service.GetLowStockAsync(page, pageSize, threshold, ct);
     return Results.Ok(result);
 })
 .WithName("GetLowStockProducts")

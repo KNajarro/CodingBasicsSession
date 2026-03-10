@@ -9,6 +9,7 @@ namespace CodingBasics.Domain.Contracts;
 public interface IPersonService
 {
     Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
+    Task<PagedResult<PersonDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default);
     Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
     Task<PersonDto?> GetByIdAsync(int id, CancellationToken ct = default);
     Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
@@ -24,6 +25,7 @@ public interface IPersonService
 public interface IProductService
 {
     Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default);
+    Task<PagedResult<ProductDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default);
     Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
     Task<ProductDto?> GetByIdAsync(int id, CancellationToken ct = default);
     Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
@@ -32,7 +34,7 @@ public interface IProductService
     Task<IEnumerable<string>> GetProductCategoriesAsync(CancellationToken ct = default);
     Task<decimal> GetInventoryValueAsync(CancellationToken ct = default);
     Task<IEnumerable<ColorCountDto>> GetColorDistributionAsync(CancellationToken ct = default);
-    Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, short threshold, CancellationToken ct = default);
+    Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, int pageSize, short threshold, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -42,6 +44,7 @@ public interface IProductService
 public interface IPersonRepository
 {
     Task<IEnumerable<PersonDto>> GetAllAsync(CancellationToken ct = default);
+    Task<PagedResult<PersonDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default);
     Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default);
     Task<PersonDto?> GetByIdAsync(int id, CancellationToken ct = default);
     Task<PersonDto> CreateAsync(PersonDto dto, CancellationToken ct = default);
@@ -59,6 +62,7 @@ public interface IPersonRepository
 public interface IProductRepository
 {
     Task<IEnumerable<ProductDto>> GetAllAsync(CancellationToken ct = default);
+    Task<PagedResult<ProductDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default);
     Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default);
     Task<ProductDto?> GetByIdAsync(int id, CancellationToken ct = default);
     Task<ProductDto> CreateAsync(ProductDto dto, CancellationToken ct = default);
@@ -67,5 +71,5 @@ public interface IProductRepository
     Task<IEnumerable<string>> GetProductCategoriesAsync(CancellationToken ct = default);
     Task<decimal> GetInventoryValueAsync(CancellationToken ct = default);
     Task<IEnumerable<ColorCountDto>> GetColorDistributionAsync(CancellationToken ct = default);
-    Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, short threshold, CancellationToken ct = default);
+    Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, int pageSize, short threshold, CancellationToken ct = default);
 }

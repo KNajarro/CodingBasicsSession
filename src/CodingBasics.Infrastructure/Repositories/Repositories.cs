@@ -31,6 +31,33 @@ public sealed class PersonRepository : IPersonRepository
             .ToListAsync(ct);
     }
 
+    public async Task<PagedResult<PersonDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = _context.People
+            .Select(p => new PersonDto
+            {
+                BusinessEntityID = p.BusinessEntityID,
+                PersonType = p.PersonType,
+                Title = p.Title,
+                FirstName = p.FirstName,
+                MiddleName = p.MiddleName,
+                LastName = p.LastName,
+                Suffix = p.Suffix,
+                EmailPromotion = p.EmailPromotion
+            });
+
+        var totalCount = await query.CountAsync(ct);
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+
+        return new PagedResult<PersonDto>
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            Items = items
+        };
+    }
+
     public async Task<IEnumerable<PersonDto>> SearchAsync(string? name, string? personType, CancellationToken ct = default)
     {
         var query = _context.People.AsQueryable();
@@ -182,6 +209,21 @@ public sealed class ProductRepository : IProductRepository
         return await BuildProductQuery().ToListAsync(ct);
     }
 
+    public async Task<PagedResult<ProductDto>> GetPagedAsync(int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = BuildProductQuery();
+        var totalCount = await query.CountAsync(ct);
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+
+        return new PagedResult<ProductDto>
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            Items = items
+        };
+    }
+
     public async Task<IEnumerable<ProductDto>> SearchAsync(string? name, string? categoryName, CancellationToken ct = default)
     {
         var query = BuildProductQuery();
@@ -278,10 +320,8 @@ public sealed class ProductRepository : IProductRepository
             .ToListAsync(ct);
     }
 
-    public async Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, short threshold, CancellationToken ct = default)
+    public async Task<PagedResult<LowStockProductDto>> GetLowStockAsync(int page, int pageSize, short threshold, CancellationToken ct = default)
     {
-        const int pageSize = 20;
-
         var query = from p in _context.Products
                     join sc in _context.ProductSubcategories
                         on p.ProductSubcategoryID equals sc.ProductSubcategoryID into scGroup
