@@ -17,11 +17,6 @@
       <nav class="sidebar-nav">
         <span class="nav-section">MENU</span>
 
-        <router-link to="/" exact-active-class="nav-active" class="nav-item" @click="mobileOpen = false">
-          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-          <span>Home</span>
-        </router-link>
-
         <router-link to="/dashboard" active-class="nav-active" class="nav-item" @click="mobileOpen = false">
           <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
           <span>Dashboard</span>
@@ -67,7 +62,7 @@ export default {
   data() { return { mobileOpen: false } },
   computed: {
     pageTitle() {
-      return { home: 'Home', dashboard: 'Analytics Dashboard', people: 'People', products: 'Products' }[this.$route.name] || 'AdventureWorks'
+      return { dashboard: 'Analytics Dashboard', people: 'People', products: 'Products' }[this.$route.name] || 'AdventureWorks'
     }
   }
 }
