@@ -1,0 +1,73 @@
+:root {
+  --bg: #f8f5ee;
+  --panel: #fffdf8;
+  --text: #202020;
+  --muted: #656565;
+  --line: #ddd3c2;
+  --brand: #004f59;
+  --brand-soft: #d6ecef;
+  --warn: #bb3d00;
+  --warn-soft: #ffe7db;
+  --radius: 16px;
+  --shadow: 0 14px 36px rgba(0, 35, 40, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+  background:
+    radial-gradient(circle at 6% 10%, #ffe8cd 0, transparent 26%),
+    radial-gradient(circle at 90% 0, #cde5e8 0, transparent 24%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.topbar h1 {
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--brand);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 1rem;
+  }
+}
