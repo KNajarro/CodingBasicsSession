@@ -1,0 +1,5 @@
+/Users/robertolopez/Documents/RSM/AdventureWorks/bin/Debug/AdventureWorks.dacpac
+/Users/robertolopez/Documents/RSM/AdventureWorks/obj/Debug/Model.xml
+/Users/robertolopez/Documents/RSM/AdventureWorks/obj/Debug/refactor.xml
+/Users/robertolopez/Documents/RSM/AdventureWorks/obj/Debug/postdeploy.sql
+/Users/robertolopez/Documents/RSM/AdventureWorks/obj/Debug/predeploy.sql
