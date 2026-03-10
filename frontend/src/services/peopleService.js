@@ -11,6 +11,12 @@ export const peopleService = {
     return response.data.items
   },
 
+  /** GET /api/people?pageSize=9999 - returns all people for dashboard */
+  async getAllForDashboard() {
+    const response = await api.get('/people', { params: { pageSize: 9999 } })
+    return response.data.items
+  },
+
   /** GET /api/people/search?name=&personType= */
   async search(name, personType) {
     const params = {}

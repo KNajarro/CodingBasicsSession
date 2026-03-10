@@ -83,9 +83,13 @@ public sealed class ProductRepository : IProductRepository
                           Name            = p.Name,
                           ProductNumber   = p.ProductNumber,
                           Color           = p.Color,
+                          StandardCost    = p.StandardCost,
                           ListPrice       = p.ListPrice,
+                          Size            = p.Size,
                           CategoryName    = c != null ? c.Name : null,
-                          SubcategoryName = sc != null ? sc.Name : null
+                          SubcategoryName = sc != null ? sc.Name : null,
+                          SafetyStockLevel = p.SafetyStockLevel,
+                          ReorderPoint     = p.ReorderPoint
                       }).ToListAsync(ct);
     }
 
@@ -104,9 +108,13 @@ public sealed class ProductRepository : IProductRepository
                         Name            = p.Name,
                         ProductNumber   = p.ProductNumber,
                         Color           = p.Color,
+                        StandardCost    = p.StandardCost,
                         ListPrice       = p.ListPrice,
+                        Size            = p.Size,
                         CategoryName    = c != null ? c.Name : null,
-                        SubcategoryName = sc != null ? sc.Name : null
+                        SubcategoryName = sc != null ? sc.Name : null,
+                        SafetyStockLevel = p.SafetyStockLevel,
+                        ReorderPoint     = p.ReorderPoint
                     };
 
         if (!string.IsNullOrWhiteSpace(name))

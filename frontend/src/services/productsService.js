@@ -11,6 +11,12 @@ export const productsService = {
     return response.data.items
   },
 
+  /** GET /api/products?pageSize=9999 - returns all products for dashboard */
+  async getAllForDashboard() {
+    const response = await api.get('/products', { params: { pageSize: 9999 } })
+    return response.data.items
+  },
+
   /** GET /api/products/search?name=&categoryName= */
   async search(name, categoryName) {
     const params = {}

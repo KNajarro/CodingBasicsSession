@@ -34,7 +34,9 @@ public sealed class ProductDto
     public string Name { get; set; } = string.Empty;
     public string ProductNumber { get; set; } = string.Empty;
     public string? Color { get; set; }
+    public decimal StandardCost { get; set; }
     public decimal ListPrice { get; set; }
+    public string? Size { get; set; }
 
     /// <summary>
     /// Category name from Production.ProductCategory (via ProductSubcategory join).
@@ -47,4 +49,7 @@ public sealed class ProductDto
     /// Examples: "Mountain Bikes", "Road Bikes", "Handlebars", "Jerseys"
     /// </summary>
     public string? SubcategoryName { get; set; }
+
+    public short SafetyStockLevel { get; set; }
+    public short ReorderPoint { get; set; }
 }
