@@ -108,3 +108,19 @@ desktop.ini
 *.bak
 *.swp
 *~
+
+## ======================
+## Dependencies and builds
+## ======================
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/.cache
+frontend/build
+
+## ======================
+# lock files and temps
+## ======================
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/pnpm-lock.yaml
